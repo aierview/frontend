@@ -1,32 +1,31 @@
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { AuthRepository } from "@/infra/adapter/AuthRepository";
-import HttpClient from "@/infra/axios/HttpClient";
 import { anyLocalSignupRequest } from "@@/shared/testdata/auth-test-fixture";
-import { AxiosInstance } from "axios";
 import { vi } from "vitest";
 
-vi.mock("@/infra/axios/HttpClient");
+const mockAxiosClient = {
+  post: vi.fn(),
+};
+
+const makeSut = () => {
+  const sut = new AuthRepository(mockAxiosClient as any);
+  return { sut };
+};
 
 describe("AuthRepository", () => {
-  let mockPost: ReturnType<typeof vi.fn>;
-  let mockHttpClient: AxiosInstance;
-
-  beforeEach(() => {
-    mockPost = vi.fn().mockResolvedValue(undefined);
-    mockHttpClient = { post: mockPost } as unknown as AxiosInstance;
-
-    vi.mocked(HttpClient.getInstance).mockReturnValue(mockHttpClient);
-  });
-
   it("should call post auth/local/signup with correct parameters", async () => {
     // Arrangetest
-    const repositoy = new AuthRepository();
+    const { sut } = makeSut();
+    mockAxiosClient.post.mockResolvedValueOnce({ statusCode: 201 });
 
     const request: LocalSignupRequest = anyLocalSignupRequest();
-    await repositoy.localSignup(request);
+    await sut.localSignup(request);
 
     // Assert
-    expect(mockPost).toHaveBeenCalledOnce();
-    expect(mockPost).toHaveBeenCalledWith("/auth/local/signup", request);
+    expect(mockAxiosClient.post).toHaveBeenCalledOnce();
+    expect(mockAxiosClient.post).toHaveBeenCalledWith({
+      url: "/auth/local/signup",
+      body: request,
+    });
   });
 });
