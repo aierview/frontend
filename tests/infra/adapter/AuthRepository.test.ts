@@ -1,4 +1,5 @@
 import { HttpStatusCode } from "@/domain/enums/HttpStatusCode";
+import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { AuthRepository } from "@/infra/adapter/AuthRepository";
@@ -32,7 +33,7 @@ describe("AuthRepository", () => {
     });
   });
 
-  it("should thow UnexpectedError on localSignup", async () => {
+  it("should thow UnexpectedError on localSignup when post /auth/local/signup returns serverError", async () => {
     // Arrangetest
     mockAxiosClient.post.mockResolvedValueOnce({
       statusCode: HttpStatusCode.serverError,
@@ -42,5 +43,19 @@ describe("AuthRepository", () => {
 
     // Assert
     await expect(sut.localSignup(request)).rejects.toThrow(UnexpectedError);
+  });
+
+  it("should thow EmailAlreadyInUseError on localSignup when post /auth/local/signup returns conflict", async () => {
+    // Arrangetest
+    const request: LocalSignupRequest = anyLocalSignupRequest();
+    mockAxiosClient.post.mockResolvedValueOnce({
+      statusCode: HttpStatusCode.coflict,
+      body: "O email " + request.email + " ja esta sendo utilizado!",
+    });
+
+    // Assert
+    await expect(sut.localSignup(request)).rejects.toThrow(
+      new EmailAlreadyInUseError(request.email)
+    );
   });
 });
