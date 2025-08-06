@@ -48,19 +48,10 @@ describe("useAuthStore", () => {
     };
 
     // Simula erro da API (AxiosError-like)
-    const fakeError = new AxiosError(
-      "Request failed",
-      "400",
-      {},
-      {},
-      {
-        data: { data: "Email already in use!" },
-        status: 400,
-        statusText: "Bad Request",
-        headers: {},
-        config: {},
-      }
-    );
+    const fakeError = {
+      isAxiosError: true,
+      response: { data: { data: "Email already in use!" } },
+    };
     mockRepo.localSignup.mockRejectedValueOnce(fakeError);
 
     await zustandStore.getState().localSignup(request);
@@ -69,4 +60,30 @@ describe("useAuthStore", () => {
     expect(zustandStore.getState().isLoading).toBe(false);
     expect(zustandStore.getState().error).toBe("Email already in use!");
   });
+
+  it("should handle unexpected error on localSignup", async () => {
+    const request: LocalSignupRequest = {
+      email: "erro@example.com",
+      password: "senha123",
+      name: "Erro",
+      role: UserRole.FULLSTACK,
+    };
+
+    // Simula erro da API (AxiosError-like)
+    const fakeError = {
+      isAxiosError: false,
+      response: { data: { data: "Email already in use!" } },
+    };
+    mockRepo.localSignup.mockRejectedValueOnce(fakeError);
+
+    await zustandStore.getState().localSignup(request);
+
+    expect(mockRepo.localSignup).toHaveBeenCalledWith(request);
+    expect(zustandStore.getState().isLoading).toBe(false);
+    expect(zustandStore.getState().error).toBe(
+      "An unexpected error occurred, please contact the support."
+    );
+  });
 });
+
+AxiosError;
