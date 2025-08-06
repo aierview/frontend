@@ -1,12 +1,10 @@
-// tests/usecases/LocalSignup.test.ts
-
 import { UserRole } from "@/domain/enums/UserRole";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { IAuhRepository } from "@/domain/repository/IAuhRepository";
 import { LocalSignup } from "@/domain/usecase/LocalSignup";
 import { describe, expect, it, vi } from "vitest";
 
-describe("LocalSignup Use Case", () => {
+describe("LocalSignup", () => {
   it("should call signup with correct parameters", async () => {
     // Arrangetest
     const mockRepository: IAuhRepository = {
