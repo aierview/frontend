@@ -1,9 +1,13 @@
 import { createAuthStore } from "@/application/store/useAuthStore";
-import { UserRole } from "@/domain/enums/UserRole";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { AuthRepository } from "@/infra/adapter/AuthRepository";
 import { AxiosError } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  anyAxiosFakeError,
+  anyLocalSignupRequest,
+  anyUnexpectedFakeError,
+} from "../shared/testdata/auth-test-fixture";
 
 describe("useAuthStore", () => {
   let store: ReturnType<ReturnType<typeof createAuthStore>["getState"]>;
@@ -22,14 +26,8 @@ describe("useAuthStore", () => {
   });
 
   it("should call localSignup with correct parameters", async () => {
-    const request: LocalSignupRequest = {
-      email: "gervasio@example.com",
-      password: "senhaSegura123",
-      name: "Gervasio",
-      role: UserRole.FULLSTACK,
-    };
+    const request: LocalSignupRequest = anyLocalSignupRequest();
 
-    // Simula sucesso da API
     mockRepo.localSignup.mockResolvedValueOnce(undefined);
 
     await zustandStore.getState().localSignup(request);
@@ -40,18 +38,9 @@ describe("useAuthStore", () => {
   });
 
   it("should handle error on localSignup", async () => {
-    const request: LocalSignupRequest = {
-      email: "erro@example.com",
-      password: "senha123",
-      name: "Erro",
-      role: UserRole.FULLSTACK,
-    };
+    const request: LocalSignupRequest = anyLocalSignupRequest();
 
-    // Simula erro da API (AxiosError-like)
-    const fakeError = {
-      isAxiosError: true,
-      response: { data: { data: "Email already in use!" } },
-    };
+    const fakeError = anyAxiosFakeError("Email already in use!");
     mockRepo.localSignup.mockRejectedValueOnce(fakeError);
 
     await zustandStore.getState().localSignup(request);
@@ -62,18 +51,9 @@ describe("useAuthStore", () => {
   });
 
   it("should handle unexpected error on localSignup", async () => {
-    const request: LocalSignupRequest = {
-      email: "erro@example.com",
-      password: "senha123",
-      name: "Erro",
-      role: UserRole.FULLSTACK,
-    };
+    const request: LocalSignupRequest = anyLocalSignupRequest();
 
-    // Simula erro da API (AxiosError-like)
-    const fakeError = {
-      isAxiosError: false,
-      response: { data: { data: "Email already in use!" } },
-    };
+    const fakeError = anyUnexpectedFakeError();
     mockRepo.localSignup.mockRejectedValueOnce(fakeError);
 
     await zustandStore.getState().localSignup(request);

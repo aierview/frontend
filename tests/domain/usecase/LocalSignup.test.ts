@@ -1,8 +1,8 @@
-import { UserRole } from "@/domain/enums/UserRole";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { IAuhRepository } from "@/domain/repository/IAuhRepository";
 import { LocalSignup } from "@/domain/usecase/LocalSignup";
 import { describe, expect, it, vi } from "vitest";
+import { anyLocalSignupRequest } from "../../shared/testdata/auth-test-fixture";
 
 describe("LocalSignup", () => {
   it("should call signup with correct parameters", async () => {
@@ -12,13 +12,7 @@ describe("LocalSignup", () => {
     } as IAuhRepository;
 
     const useCase = new LocalSignup(mockRepository);
-
-    const request: LocalSignupRequest = {
-      email: "gervasio@example.com",
-      password: "senhaSegura123",
-      name: "Gervasio",
-      role: UserRole.FULLSTACK,
-    };
+    const request: LocalSignupRequest = anyLocalSignupRequest();
 
     // Act
     await useCase.execute(request);

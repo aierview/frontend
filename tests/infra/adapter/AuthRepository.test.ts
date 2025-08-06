@@ -1,9 +1,9 @@
-import { UserRole } from "@/domain/enums/UserRole";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { AuthRepository } from "@/infra/adapter/AuthRepository";
 import HttpClient from "@/infra/axios/HttpClient";
 import { AxiosInstance } from "axios";
 import { vi } from "vitest";
+import { anyLocalSignupRequest } from "../../shared/testdata/auth-test-fixture";
 
 vi.mock("@/infra/axios/HttpClient");
 
@@ -22,13 +22,7 @@ describe("AuthRepository", () => {
     // Arrangetest
     const repositoy = new AuthRepository();
 
-    const request: LocalSignupRequest = {
-      email: "gervasio@example.com",
-      password: "senhaSegura123",
-      name: "Gervasio",
-      role: UserRole.FULLSTACK,
-    };
-
+    const request: LocalSignupRequest = anyLocalSignupRequest();
     await repositoy.localSignup(request);
 
     // Assert
