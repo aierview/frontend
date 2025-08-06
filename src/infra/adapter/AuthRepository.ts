@@ -1,12 +1,26 @@
+import { HttpStatusCode } from "@/domain/enums/HttpStatusCode";
+import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
+import { UnexpectedError } from "@/domain/errors/UnexpectedError";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { IAuhRepository } from "@/domain/repository/IAuhRepository";
-import HttpClient from "@/infra/axios/HttpClient";
-import { NEXT_PUBLIC_API_URL } from "@/shared/lib";
+import { AxiosHttpClient } from "@/infra/axios/AxiosHttpClient";
 
 export class AuthRepository implements IAuhRepository {
-  private http = HttpClient.getInstance(NEXT_PUBLIC_API_URL);
+  constructor(private readonly axiosClient: AxiosHttpClient) {}
 
   async localSignup(request: LocalSignupRequest): Promise<void> {
-    await this.http.post("/auth/local/signup", request);
+    const httpResponse = await this.axiosClient.post({
+      url: "/auth/local/signup",
+      body: request,
+    });
+
+    switch (httpResponse.statusCode) {
+      case HttpStatusCode.badRequest:
+        throw new UnexpectedError(httpResponse.body);
+      case HttpStatusCode.coflict:
+        throw new EmailAlreadyInUseError(request.email);
+      case HttpStatusCode.serverError:
+        throw new UnexpectedError();
+    }
   }
 }
