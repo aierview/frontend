@@ -1,9 +1,9 @@
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { AuthRepository } from "@/infra/adapter/AuthRepository";
 import HttpClient from "@/infra/axios/HttpClient";
+import { anyLocalSignupRequest } from "@@/shared/testdata/auth-test-fixture";
 import { AxiosInstance } from "axios";
 import { vi } from "vitest";
-import { anyLocalSignupRequest } from "../../shared/testdata/auth-test-fixture";
 
 vi.mock("@/infra/axios/HttpClient");
 

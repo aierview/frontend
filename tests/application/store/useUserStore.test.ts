@@ -1,13 +1,13 @@
 import { createAuthStore } from "@/application/store/useAuthStore";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { AuthRepository } from "@/infra/adapter/AuthRepository";
-import { AxiosError } from "axios";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   anyAxiosFakeError,
   anyLocalSignupRequest,
   anyUnexpectedFakeError,
-} from "../shared/testdata/auth-test-fixture";
+} from "@@/shared/testdata/auth-test-fixture";
+import { AxiosError } from "axios";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("useAuthStore", () => {
   let store: ReturnType<ReturnType<typeof createAuthStore>["getState"]>;

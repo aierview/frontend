@@ -1,8 +1,8 @@
+import { LocalSignup } from "@/application/usecase/LocalSignup";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { IAuhRepository } from "@/domain/repository/IAuhRepository";
-import { LocalSignup } from "@/domain/usecase/LocalSignup";
+import { anyLocalSignupRequest } from "@@/shared/testdata/auth-test-fixture";
 import { describe, expect, it, vi } from "vitest";
-import { anyLocalSignupRequest } from "../../shared/testdata/auth-test-fixture";
 
 describe("LocalSignup", () => {
   it("should call signup with correct parameters", async () => {
