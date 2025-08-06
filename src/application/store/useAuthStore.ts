@@ -1,6 +1,5 @@
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
-import { AuthRepository } from "@/infra/adapter/AuthRepository";
-import axios from "axios";
+import { IAuhRepository } from "@/domain/repository/IAuhRepository";
 import { create } from "zustand";
 
 type AuthStore = {
@@ -10,7 +9,7 @@ type AuthStore = {
   localSignup: (request: LocalSignupRequest) => Promise<void>;
 };
 
-export const createAuthStore = (repo: AuthRepository) =>
+export const createAuthStore = (repo: IAuhRepository) =>
   create<AuthStore>((set) => ({
     isLoading: false,
     error: null,
@@ -19,16 +18,10 @@ export const createAuthStore = (repo: AuthRepository) =>
       set({ isLoading: true, error: null });
       try {
         await repo.localSignup(request);
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) set({ error: err.response?.data?.data });
-        else
-          set({
-            error: "An unexpected error occurred, please contact the support.",
-          });
+      } catch (error) {
+        set({ error: (error as Error).message });
       } finally {
         set({ isLoading: false });
       }
     },
   }));
-
-export const useAuthStore = createAuthStore(new AuthRepository());
