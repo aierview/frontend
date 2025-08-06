@@ -1,6 +1,6 @@
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { AuthRepository } from "@/infra/adapter/AuthRepository";
-import { AxiosError } from "axios";
+import axios from "axios";
 import { create } from "zustand";
 
 type AuthStore = {
@@ -19,9 +19,12 @@ export const createAuthStore = (repo: AuthRepository) =>
       set({ isLoading: true, error: null });
       try {
         await repo.localSignup(request);
-      } catch (err) {
-        if (err instanceof AxiosError)
-          set({ error: err?.response?.data?.data });
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err)) set({ error: err.response?.data?.data });
+        else
+          set({
+            error: "An unexpected error occurred, please contact the support.",
+          });
       } finally {
         set({ isLoading: false });
       }
