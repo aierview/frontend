@@ -1,4 +1,5 @@
 import { HttpStatusCode } from "@/domain/enums/HttpStatusCode";
+import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
@@ -16,7 +17,7 @@ export class AuthRepository implements IAuhRepository {
 
     switch (httpResponse.statusCode) {
       case HttpStatusCode.badRequest:
-        throw new UnexpectedError(httpResponse.body);
+        throw new BadRequestError(httpResponse.body);
       case HttpStatusCode.coflict:
         throw new EmailAlreadyInUseError(request.email);
       case HttpStatusCode.serverError:
