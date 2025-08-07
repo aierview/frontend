@@ -1,4 +1,4 @@
-import SignupPage from "@/app/(public)/signup/page";
+import SigninPage from "@/app/(public)/signin/page";
 import { useAuthStore } from "@/application/store/useAuthStore";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
@@ -7,69 +7,55 @@ vi.mock("@/application/store/useAuthStore", () => ({
   useAuthStore: vi.fn(),
 }));
 
-const mockLocalSignup = vi.fn();
+const mockLocalSignin = vi.fn();
 const mockPush = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
-describe("SignupPage", () => {
-  const mockLocalSignup = vi.fn();
+describe("SigninPage", () => {
+  const mockLocalSignin = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useAuthStore as unknown as vi.Mock).mockReturnValue({
-      localSignup: mockLocalSignup,
+      localSignin: mockLocalSignin,
       error: "",
     });
   });
 
   it("renders all form fields", () => {
-    render(<SignupPage />);
-    expect(screen.getByTestId("name")).toBeInTheDocument();
+    render(<SigninPage />);
+
     expect(screen.getByTestId("email")).toBeInTheDocument();
-    expect(screen.getByTestId("role")).toBeInTheDocument();
     expect(screen.getByTestId("password")).toBeInTheDocument();
-    expect(screen.getByTestId("confirmPassword")).toBeInTheDocument();
     expect(screen.getByTestId("submit")).toBeInTheDocument();
   });
 
-  it("shows validation errors when submitting invali form", async () => {
-    render(<SignupPage />);
+  it("shows validation errors when submitting invalid form", async () => {
+    render(<SigninPage />);
 
-    fireEvent.input(screen.getByTestId("name"), {
-      target: { value: "J" },
-    });
     fireEvent.input(screen.getByTestId("email"), {
       target: { value: "john@example" },
     });
 
     fireEvent.input(screen.getByTestId("password"), {
-      target: { value: "Password1" },
-    });
-    fireEvent.input(screen.getByTestId("confirmPassword"), {
-      target: { value: "Password123!" },
+      target: { value: "Pass" },
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("error-name")).toHaveTextContent(
-        "Informa seu nome completo."
-      );
       expect(screen.getByTestId("error-email")).toHaveTextContent(
         "Formato de email invalido."
       );
       expect(screen.getByTestId("error-password")).toHaveTextContent(
-        "A senha deve ter pelo menos 6 caracteres, uma letra mauscula, um numero e um simbolo."
-      );
-      expect(screen.getByTestId("error-confirmPassword")).toHaveTextContent(
-        "As senhas não coincidem!"
+        "enha inválida"
       );
     });
   });
 
   it("toggles password visibility", () => {
-    render(<SignupPage />);
+    render(<SigninPage />);
     const passwordInput = screen.getByTestId("password") as HTMLInputElement;
     const toggleButton = screen.getAllByTestId("togglePass")[0];
 
@@ -78,24 +64,16 @@ describe("SignupPage", () => {
     expect(passwordInput.type).toBe("text");
   });
 
-  it("calls localSignup with form values", async () => {
-    mockLocalSignup.mockResolvedValue(true);
+  it("calls localSignin with form values", async () => {
+    mockLocalSignin.mockResolvedValue(true);
 
-    render(<SignupPage />);
+    render(<SigninPage />);
 
-    fireEvent.input(screen.getByTestId("name"), {
-      target: { value: "John Doe" },
-    });
     fireEvent.input(screen.getByTestId("email"), {
       target: { value: "john@example.com" },
     });
-    fireEvent.change(screen.getByTestId("role"), {
-      target: { value: 2 },
-    });
+
     fireEvent.input(screen.getByTestId("password"), {
-      target: { value: "Password123!" },
-    });
-    fireEvent.input(screen.getByTestId("confirmPassword"), {
       target: { value: "Password123!" },
     });
 
@@ -106,37 +84,28 @@ describe("SignupPage", () => {
     fireEvent.click(screen.getByTestId("submit"));
 
     await waitFor(() => {
-      expect(mockLocalSignup).toHaveBeenCalledWith({
-        name: "John Doe",
+      expect(mockLocalSignin).toHaveBeenCalledWith({
         email: "john@example.com",
         password: "Password123!",
-        role: "BACKEND",
       });
     });
   });
 
-  it("shows backend error if signup fails", async () => {
-    mockLocalSignup.mockResolvedValue(false);
+  it("shows backend error if signin fails", async () => {
+    mockLocalSignin.mockResolvedValue(false);
 
     (useAuthStore as unknown as vi.Mock).mockReturnValue({
-      localSignup: mockLocalSignup,
-      error: "Email already in use",
+      localSignin: mockLocalSignin,
+      error: "Invalid credentials",
     });
 
-    render(<SignupPage />);
-    fireEvent.input(screen.getByTestId("name"), {
-      target: { value: "Jane" },
-    });
+    render(<SigninPage />);
+
     fireEvent.input(screen.getByTestId("email"), {
       target: { value: "jane@example.com" },
     });
-    fireEvent.change(screen.getByTestId("role"), {
-      target: { value: "USER" },
-    });
+
     fireEvent.input(screen.getByTestId("password"), {
-      target: { value: "Password123" },
-    });
-    fireEvent.input(screen.getByTestId("confirmPassword"), {
       target: { value: "Password123" },
     });
 
@@ -144,7 +113,7 @@ describe("SignupPage", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("error-subimt")).toHaveTextContent(
-        "Email already in use"
+        "Invalid credentials"
       );
     });
   });
