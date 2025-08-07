@@ -31,5 +31,10 @@ export class AuthRepository implements IAuhRepository {
       url: "/auth/local/signin",
       body: request,
     });
+
+    switch (httpResponse.statusCode) {
+      case HttpStatusCode.serverError:
+        throw new UnexpectedError();
+    }
   }
 }
