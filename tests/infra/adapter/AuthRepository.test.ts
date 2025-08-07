@@ -1,6 +1,7 @@
 import { HttpStatusCode } from "@/domain/enums/HttpStatusCode";
 import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
+import { InvalidCredentialError } from "@/domain/errors/InvalidCredentialError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
 import { LocalSigninRequest } from "@/domain/model/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
@@ -114,6 +115,17 @@ describe("AuthRepository", () => {
 
       const request: LocalSigninRequest = anyLocalSigninRequest();
       await expect(sut.localSigin(request)).rejects.toThrow(UnexpectedError);
+    });
+
+    it("should trhow unauthorizedError if post /auth/local/signin returns unauthorized", async () => {
+      mockAxiosClient.post.mockResolvedValueOnce({
+        statusCode: HttpStatusCode.unauthorized,
+      });
+
+      const request: LocalSigninRequest = anyLocalSigninRequest();
+      await expect(sut.localSigin(request)).rejects.toThrow(
+        InvalidCredentialError
+      );
     });
   });
 });
