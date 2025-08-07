@@ -1,48 +1,83 @@
 import { createAuthStore } from "@/application/store/useAuthStore";
+import { LocalSigninRequest } from "@/domain/model/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { AuthRepository } from "@/infra/adapter/AuthRepository";
-import { anyLocalSignupRequest } from "@@/shared/testdata/auth-test-fixture";
+import {
+  anyLocalSigninRequest,
+  anyLocalSignupRequest,
+} from "@@/shared/testdata/auth-test-fixture";
 import { AxiosError } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("useAuthStore", () => {
-  let store: ReturnType<ReturnType<typeof createAuthStore>["getState"]>;
-  let mockRepo: { localSignup: ReturnType<typeof vi.fn> };
-  let zustandStore: ReturnType<typeof createAuthStore>;
+  describe("localSignup", () => {
+    let store: ReturnType<ReturnType<typeof createAuthStore>["getState"]>;
+    let mockRepo: { localSignup: ReturnType<typeof vi.fn> };
+    let zustandStore: ReturnType<typeof createAuthStore>;
 
-  beforeEach(() => {
-    // Criamos um mock do repositório
-    mockRepo = {
-      localSignup: vi.fn(),
-    };
+    beforeEach(() => {
+      // Criamos um mock do repositório
+      mockRepo = {
+        localSignup: vi.fn(),
+      };
 
-    // Criamos a store injetando o mock
-    zustandStore = createAuthStore(mockRepo as unknown as AuthRepository);
-    store = zustandStore.getState();
+      // Criamos a store injetando o mock
+      zustandStore = createAuthStore(mockRepo as unknown as AuthRepository);
+      store = zustandStore.getState();
+    });
+
+    it("should call localSignup with correct parameters", async () => {
+      const request: LocalSignupRequest = anyLocalSignupRequest();
+
+      mockRepo.localSignup.mockResolvedValueOnce(undefined);
+
+      await zustandStore.getState().localSignup(request);
+
+      expect(mockRepo.localSignup).toHaveBeenCalledWith(request);
+      expect(zustandStore.getState().isLoading).toBe(false);
+      expect(zustandStore.getState().error).toBe(null);
+    });
+
+    it("should handle error on localSignup", async () => {
+      const request: LocalSignupRequest = anyLocalSignupRequest();
+
+      mockRepo.localSignup.mockRejectedValueOnce(
+        new Error("An error occurred!")
+      );
+
+      await zustandStore.getState().localSignup(request);
+
+      expect(mockRepo.localSignup).toHaveBeenCalledWith(request);
+      expect(zustandStore.getState().isLoading).toBe(false);
+      expect(zustandStore.getState().error).toBe("An error occurred!");
+    });
   });
 
-  it("should call localSignup with correct parameters", async () => {
-    const request: LocalSignupRequest = anyLocalSignupRequest();
+  describe("localSignin", () => {
+    let store: ReturnType<ReturnType<typeof createAuthStore>["getState"]>;
+    let mockRepo: { localSignin: ReturnType<typeof vi.fn> };
+    let zustandStore: ReturnType<typeof createAuthStore>;
 
-    mockRepo.localSignup.mockResolvedValueOnce(undefined);
+    beforeEach(() => {
+      mockRepo = {
+        localSignin: vi.fn(),
+      };
 
-    await zustandStore.getState().localSignup(request);
+      zustandStore = createAuthStore(mockRepo as unknown as AuthRepository);
+      store = zustandStore.getState();
+    });
 
-    expect(mockRepo.localSignup).toHaveBeenCalledWith(request);
-    expect(zustandStore.getState().isLoading).toBe(false);
-    expect(zustandStore.getState().error).toBe(null);
-  });
+    it("should call localSignin with correct parameters", async () => {
+      const request: LocalSigninRequest = anyLocalSigninRequest();
 
-  it("should handle error on localSignup", async () => {
-    const request: LocalSignupRequest = anyLocalSignupRequest();
+      mockRepo.localSignin.mockResolvedValueOnce(undefined);
 
-    mockRepo.localSignup.mockRejectedValueOnce(new Error("An error occurred!"));
+      await zustandStore.getState().localSignin(request);
 
-    await zustandStore.getState().localSignup(request);
-
-    expect(mockRepo.localSignup).toHaveBeenCalledWith(request);
-    expect(zustandStore.getState().isLoading).toBe(false);
-    expect(zustandStore.getState().error).toBe("An error occurred!");
+      expect(mockRepo.localSignin).toHaveBeenCalledWith(request);
+      expect(zustandStore.getState().isLoading).toBe(false);
+      expect(zustandStore.getState().error).toBe(null);
+    });
   });
 });
 

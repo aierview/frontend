@@ -97,7 +97,7 @@ describe("AuthRepository", () => {
       mockAxiosClient.post.mockResolvedValueOnce({ statusCode: 201 });
 
       const request: LocalSigninRequest = anyLocalSigninRequest();
-      await sut.localSigin(request);
+      await sut.localSignin(request);
 
       // Assert
       expect(mockAxiosClient.post).toHaveBeenCalledOnce();
@@ -114,7 +114,7 @@ describe("AuthRepository", () => {
       });
 
       const request: LocalSigninRequest = anyLocalSigninRequest();
-      await expect(sut.localSigin(request)).rejects.toThrow(UnexpectedError);
+      await expect(sut.localSignin(request)).rejects.toThrow(UnexpectedError);
     });
 
     it("should trhow unauthorizedError if post /auth/local/signin returns unauthorized", async () => {
@@ -123,7 +123,7 @@ describe("AuthRepository", () => {
       });
 
       const request: LocalSigninRequest = anyLocalSigninRequest();
-      await expect(sut.localSigin(request)).rejects.toThrow(
+      await expect(sut.localSignin(request)).rejects.toThrow(
         InvalidCredentialError
       );
     });
@@ -135,7 +135,7 @@ describe("AuthRepository", () => {
       });
 
       const request: LocalSigninRequest = anyLocalSigninRequest();
-      await expect(sut.localSigin(request)).rejects.toThrow(
+      await expect(sut.localSignin(request)).rejects.toThrow(
         new BadRequestError("O campo nome é obigatorio!")
       );
     });
