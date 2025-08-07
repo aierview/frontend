@@ -2,75 +2,108 @@ import { HttpStatusCode } from "@/domain/enums/HttpStatusCode";
 import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
+import { LocalSigninRequest } from "@/domain/model/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { AuthRepository } from "@/infra/adapter/AuthRepository";
-import { anyLocalSignupRequest } from "@@/shared/testdata/auth-test-fixture";
+import {
+  anyLocalSigninRequest,
+  anyLocalSignupRequest,
+} from "@@/shared/testdata/auth-test-fixture";
 import { vi } from "vitest";
 
-const mockAxiosClient = {
-  post: vi.fn(),
-};
-
 describe("AuthRepository", () => {
-  let sut: AuthRepository;
+  describe("LocalSignup", () => {
+    const mockAxiosClient = {
+      post: vi.fn(),
+    };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    sut = new AuthRepository(mockAxiosClient as any);
-  });
+    let sut: AuthRepository;
 
-  it("should call post auth/local/signup with correct parameters on localSignup", async () => {
-    // Arrangetest
-    mockAxiosClient.post.mockResolvedValueOnce({ statusCode: 201 });
+    beforeEach(() => {
+      vi.clearAllMocks();
+      sut = new AuthRepository(mockAxiosClient as any);
+    });
 
-    const request: LocalSignupRequest = anyLocalSignupRequest();
-    await sut.localSignup(request);
+    it("should call post auth/local/signup with correct parameters on localSignup", async () => {
+      // Arrangetest
+      mockAxiosClient.post.mockResolvedValueOnce({ statusCode: 201 });
 
-    // Assert
-    expect(mockAxiosClient.post).toHaveBeenCalledOnce();
-    expect(mockAxiosClient.post).toHaveBeenCalledWith({
-      url: "/auth/local/signup",
-      body: request,
+      const request: LocalSignupRequest = anyLocalSignupRequest();
+      await sut.localSignup(request);
+
+      // Assert
+      expect(mockAxiosClient.post).toHaveBeenCalledOnce();
+      expect(mockAxiosClient.post).toHaveBeenCalledWith({
+        url: "/auth/local/signup",
+        body: request,
+      });
+    });
+
+    it("should thow UnexpectedError on localSignup when post /auth/local/signup returns serverError", async () => {
+      // Arrangetest
+      mockAxiosClient.post.mockResolvedValueOnce({
+        statusCode: HttpStatusCode.serverError,
+        body: "dados inválidos",
+      });
+      const request: LocalSignupRequest = anyLocalSignupRequest();
+
+      // Assert
+      await expect(sut.localSignup(request)).rejects.toThrow(UnexpectedError);
+    });
+
+    it("should thow EmailAlreadyInUseError on localSignup when post /auth/local/signup returns conflict", async () => {
+      // Arrangetest
+      const request: LocalSignupRequest = anyLocalSignupRequest();
+      mockAxiosClient.post.mockResolvedValueOnce({
+        statusCode: HttpStatusCode.coflict,
+        body: "O email " + request.email + " ja esta sendo utilizado!",
+      });
+
+      // Assert
+      await expect(sut.localSignup(request)).rejects.toThrow(
+        new EmailAlreadyInUseError(request.email)
+      );
+    });
+
+    it("should thow BadRequestError on localSignup when post /auth/local/signup returns BadRequest", async () => {
+      // Arrangetest
+      const request: LocalSignupRequest = anyLocalSignupRequest();
+      mockAxiosClient.post.mockResolvedValueOnce({
+        statusCode: HttpStatusCode.badRequest,
+        body: "O campo nome é obigatorio!",
+      });
+
+      // Assert
+      await expect(sut.localSignup(request)).rejects.toThrow(
+        new BadRequestError("O campo nome é obigatorio!")
+      );
     });
   });
 
-  it("should thow UnexpectedError on localSignup when post /auth/local/signup returns serverError", async () => {
-    // Arrangetest
-    mockAxiosClient.post.mockResolvedValueOnce({
-      statusCode: HttpStatusCode.serverError,
-      body: "dados inválidos",
-    });
-    const request: LocalSignupRequest = anyLocalSignupRequest();
+  describe("LocalSignin", () => {
+    const mockAxiosClient = {
+      post: vi.fn(),
+    };
 
-    // Assert
-    await expect(sut.localSignup(request)).rejects.toThrow(UnexpectedError);
-  });
+    let sut: AuthRepository;
 
-  it("should thow EmailAlreadyInUseError on localSignup when post /auth/local/signup returns conflict", async () => {
-    // Arrangetest
-    const request: LocalSignupRequest = anyLocalSignupRequest();
-    mockAxiosClient.post.mockResolvedValueOnce({
-      statusCode: HttpStatusCode.coflict,
-      body: "O email " + request.email + " ja esta sendo utilizado!",
+    beforeEach(() => {
+      vi.clearAllMocks();
+      sut = new AuthRepository(mockAxiosClient as any);
     });
 
-    // Assert
-    await expect(sut.localSignup(request)).rejects.toThrow(
-      new EmailAlreadyInUseError(request.email)
-    );
-  });
+    it("Should call post auth/local/signin with correct params on lolca Sigin", async () => {
+      mockAxiosClient.post.mockResolvedValueOnce({ statusCode: 201 });
 
-  it("should thow BadRequestError on localSignup when post /auth/local/signup returns BadRequest", async () => {
-    // Arrangetest
-    const request: LocalSignupRequest = anyLocalSignupRequest();
-    mockAxiosClient.post.mockResolvedValueOnce({
-      statusCode: HttpStatusCode.badRequest,
-      body: "O campo nome é obigatorio!",
+      const request: LocalSigninRequest = anyLocalSigninRequest();
+      await sut.localSigin(request);
+
+      // Assert
+      expect(mockAxiosClient.post).toHaveBeenCalledOnce();
+      expect(mockAxiosClient.post).toHaveBeenCalledWith({
+        url: "/auth/local/signin",
+        body: request,
+      });
     });
-
-    // Assert
-    await expect(sut.localSignup(request)).rejects.toThrow(
-      new BadRequestError("O campo nome é obigatorio!")
-    );
   });
 });
