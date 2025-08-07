@@ -127,5 +127,17 @@ describe("AuthRepository", () => {
         InvalidCredentialError
       );
     });
+
+    it("should trhow BadRequestError if post /auth/local/signin returns badrequest", async () => {
+      mockAxiosClient.post.mockResolvedValueOnce({
+        statusCode: HttpStatusCode.badRequest,
+        body: "O campo nome é obigatorio!",
+      });
+
+      const request: LocalSigninRequest = anyLocalSigninRequest();
+      await expect(sut.localSigin(request)).rejects.toThrow(
+        new BadRequestError("O campo nome é obigatorio!")
+      );
+    });
   });
 });
