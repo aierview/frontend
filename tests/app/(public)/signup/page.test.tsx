@@ -44,14 +44,29 @@ describe("Signup page", () => {
     expect(submitButton.disabled).toBe(true);
   });
 
-  it("should show name error message whem name is empty", async () => {
+  it("should show name error message whem name has less than 6 characters", async () => {
     render(<SignupPage />);
 
     const nameInput = screen.getByTestId("name") as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: "a" } });
 
     await screen.findByTestId("error-name");
-    const errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
+    let errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
+    expect(errorNameInput.textContent).toBe("Inform seu nome completo.");
+
+    fireEvent.change(nameInput, { target: { value: "Ger" } });
+    await screen.findByTestId("error-name");
+    errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
+    expect(errorNameInput.textContent).toBe("Inform seu nome completo.");
+
+    fireEvent.change(nameInput, { target: { value: "Gerva" } });
+    await screen.findByTestId("error-name");
+    errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
+    expect(errorNameInput.textContent).toBe("Inform seu nome completo.");
+
+    fireEvent.change(nameInput, { target: { value: "Gerva" } });
+    await screen.findByTestId("error-name");
+    errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
     expect(errorNameInput.textContent).toBe("Inform seu nome completo.");
   });
 
