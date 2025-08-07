@@ -1,4 +1,5 @@
 import { HttpStatusCode } from "@/domain/enums/HttpStatusCode";
+import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
@@ -56,6 +57,20 @@ describe("AuthRepository", () => {
     // Assert
     await expect(sut.localSignup(request)).rejects.toThrow(
       new EmailAlreadyInUseError(request.email)
+    );
+  });
+
+  it("should thow BadRequestError on localSignup when post /auth/local/signup returns BadRequest", async () => {
+    // Arrangetest
+    const request: LocalSignupRequest = anyLocalSignupRequest();
+    mockAxiosClient.post.mockResolvedValueOnce({
+      statusCode: HttpStatusCode.badRequest,
+      body: "O campo nome é obigatorio!",
+    });
+
+    // Assert
+    await expect(sut.localSignup(request)).rejects.toThrow(
+      new BadRequestError("O campo nome é obigatorio!")
     );
   });
 });
