@@ -1,99 +1,92 @@
 import { createAuthStore } from "@/application/store/useAuthStore";
+import { UserRole } from "@/domain/enums/UserRole";
+import { UnexpectedError } from "@/domain/errors/UnexpectedError";
 import { LocalSigninRequest } from "@/domain/model/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
-import { AuthRepository } from "@/infra/adapter/AuthRepository";
-import {
-  anyLocalSigninRequest,
-  anyLocalSignupRequest,
-} from "@@/shared/testdata/auth-test-fixture";
+import { IAuhRepository } from "@/domain/repository/IAuhRepository";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-describe("useAuthStore", () => {
+// mocks
+const mockRepo: IAuhRepository = {
+  localSignup: vi.fn(),
+  localSignin: vi.fn(),
+};
+
+const requestSignup: LocalSignupRequest = {
+  email: "test@example.com",
+  password: "password123",
+  name: "Test User",
+  role: UserRole.BACKEND,
+};
+
+const requestSignin: LocalSigninRequest = {
+  email: "test@example.com",
+  password: "password123",
+};
+
+describe("AuthStore", () => {
+  let store: ReturnType<typeof createAuthStore>;
+
+  beforeEach(() => {
+    store = createAuthStore(mockRepo);
+    vi.clearAllMocks();
+  });
+
   describe("localSignup", () => {
-    let store: ReturnType<ReturnType<typeof createAuthStore>["getState"]>;
-    let mockRepo: { localSignup: ReturnType<typeof vi.fn> };
-    let zustandStore: ReturnType<typeof createAuthStore>;
+    it("should return true and not set error when signup is successful", async () => {
+      vi.mocked(mockRepo.localSignup).mockResolvedValueOnce({
+        success: true,
+        data: null,
+      });
 
-    beforeEach(() => {
-      // Criamos um mock do repositório
-      mockRepo = {
-        localSignup: vi.fn(),
-      };
+      const result = await store.getState().localSignup(requestSignup);
 
-      // Criamos a store injetando o mock
-      zustandStore = createAuthStore(mockRepo as unknown as AuthRepository);
-      store = zustandStore.getState();
+      expect(result).toBe(true);
+      expect(store.getState().error).toBe(null);
+      expect(mockRepo.localSignup).toHaveBeenCalledWith(requestSignup);
     });
 
-    it("should call localSignup with correct parameters", async () => {
-      const request: LocalSignupRequest = anyLocalSignupRequest();
+    it("should return false and set error when signup fails", async () => {
+      const error = new UnexpectedError();
 
-      mockRepo.localSignup.mockResolvedValueOnce(undefined);
+      vi.mocked(mockRepo.localSignup).mockResolvedValueOnce({
+        success: false,
+        data: error,
+      });
 
-      const result = await zustandStore.getState().localSignup(request);
+      const result = await store.getState().localSignup(requestSignup);
 
-      expect(result).toBeTruthy();
-      expect(mockRepo.localSignup).toHaveBeenCalledWith(request);
-      expect(zustandStore.getState().isLoading).toBe(false);
-      expect(zustandStore.getState().error).toBe(null);
-    });
-
-    it("should handle error on localSignup", async () => {
-      const request: LocalSignupRequest = anyLocalSignupRequest();
-
-      mockRepo.localSignup.mockRejectedValueOnce(
-        new Error("An error occurred!")
-      );
-
-      const result = await zustandStore.getState().localSignup(request);
-
-      expect(result).toBeFalsy();
-      expect(mockRepo.localSignup).toHaveBeenCalledWith(request);
-      expect(zustandStore.getState().isLoading).toBe(false);
-      expect(zustandStore.getState().error).toBe("An error occurred!");
+      expect(result).toBe(false);
+      expect(store.getState().error).toBe(error.message);
     });
   });
 
   describe("localSignin", () => {
-    let store: ReturnType<ReturnType<typeof createAuthStore>["getState"]>;
-    let mockRepo: { localSignin: ReturnType<typeof vi.fn> };
-    let zustandStore: ReturnType<typeof createAuthStore>;
+    it("should return true and not set error when signin is successful", async () => {
+      vi.mocked(mockRepo.localSignin).mockResolvedValueOnce({
+        success: true,
+        data: null,
+      });
 
-    beforeEach(() => {
-      mockRepo = {
-        localSignin: vi.fn(),
-      };
+      const result = await store.getState().localSignin(requestSignin);
 
-      zustandStore = createAuthStore(mockRepo as unknown as AuthRepository);
-      store = zustandStore.getState();
+      expect(result).toBe(true);
+      expect(store.getState().error).toBe(null);
+      expect(mockRepo.localSignin).toHaveBeenCalledWith(requestSignin);
     });
 
-    it("should call localSignin with correct parameters", async () => {
-      const request: LocalSigninRequest = anyLocalSigninRequest();
+    it("should return false and set error when signin fails", async () => {
+      const error = new UnexpectedError();
 
-      mockRepo.localSignin.mockResolvedValueOnce(undefined);
+      vi.mocked(mockRepo.localSignin).mockResolvedValueOnce({
+        success: false,
+        data: error,
+      });
 
-      const result = await zustandStore.getState().localSignin(request);
+      const result = await store.getState().localSignin(requestSignin);
 
-      expect(result).toBeTruthy();
-      expect(mockRepo.localSignin).toHaveBeenCalledWith(request);
-      expect(zustandStore.getState().isLoading).toBe(false);
-      expect(zustandStore.getState().error).toBe(null);
-    });
-
-    it("should handle error on localSignin", async () => {
-      const request: LocalSigninRequest = anyLocalSigninRequest();
-
-      mockRepo.localSignin.mockRejectedValueOnce(
-        new Error("An error occurred!")
-      );
-
-      const result = await zustandStore.getState().localSignin(request);
-
-      expect(result).toBeFalsy();
-      expect(mockRepo.localSignin).toHaveBeenCalledWith(request);
-      expect(zustandStore.getState().isLoading).toBe(false);
-      expect(zustandStore.getState().error).toBe("An error occurred!");
+      expect(result).toBe(false);
+      expect(store.getState().error).toBe(error.message);
     });
   });
 });
