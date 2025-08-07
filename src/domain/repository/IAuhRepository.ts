@@ -3,5 +3,5 @@ import { LocalSigninRequest } from "../model/LocalSigninRequest";
 
 export interface IAuhRepository {
   localSignup(request: LocalSignupRequest): Promise<void>;
-  localSigin(request: LocalSigninRequest): Promise<void>;
+  localSignin(request: LocalSigninRequest): Promise<void>;
 }
