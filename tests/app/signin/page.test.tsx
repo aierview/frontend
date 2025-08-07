@@ -1,6 +1,7 @@
 import SigninPage from "@/app/(public)/signin/page";
 import { useAuthStore } from "@/application/store/useAuthStore";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useRouter } from "next/navigation";
 import { vi } from "vitest";
 
 vi.mock("@/application/store/useAuthStore", () => ({
@@ -11,7 +12,7 @@ const mockLocalSignin = vi.fn();
 const mockPush = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: vi.fn(),
 }));
 
 describe("SigninPage", () => {
@@ -22,6 +23,10 @@ describe("SigninPage", () => {
     (useAuthStore as unknown as vi.Mock).mockReturnValue({
       localSignin: mockLocalSignin,
       error: "",
+    });
+
+    (useRouter as unknown as vi.Mock).mockReturnValue({
+      push: mockPush,
     });
   });
 
@@ -88,6 +93,7 @@ describe("SigninPage", () => {
         email: "john@example.com",
         password: "Password123!",
       });
+      expect(mockPush).toHaveBeenCalledWith("/");
     });
   });
 
@@ -115,6 +121,7 @@ describe("SigninPage", () => {
       expect(screen.getByTestId("error-subimt")).toHaveTextContent(
         "Invalid credentials"
       );
+      expect(mockPush).toHaveBeenCalledTimes(0);
     });
   });
 });

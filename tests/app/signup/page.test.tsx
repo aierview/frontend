@@ -1,6 +1,7 @@
 import SignupPage from "@/app/(public)/signup/page";
 import { useAuthStore } from "@/application/store/useAuthStore";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useRouter } from "next/navigation";
 import { vi } from "vitest";
 
 vi.mock("@/application/store/useAuthStore", () => ({
@@ -11,7 +12,7 @@ const mockLocalSignup = vi.fn();
 const mockPush = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: vi.fn(),
 }));
 
 describe("SignupPage", () => {
@@ -22,6 +23,10 @@ describe("SignupPage", () => {
     (useAuthStore as unknown as vi.Mock).mockReturnValue({
       localSignup: mockLocalSignup,
       error: "",
+    });
+
+    (useRouter as unknown as vi.Mock).mockReturnValue({
+      push: mockPush,
     });
   });
 
@@ -78,7 +83,7 @@ describe("SignupPage", () => {
     expect(passwordInput.type).toBe("text");
   });
 
-  it("calls localSignup with form values", async () => {
+  it("calls localSignup with form values and push to signin page", async () => {
     mockLocalSignup.mockResolvedValue(true);
 
     render(<SignupPage />);
@@ -112,6 +117,7 @@ describe("SignupPage", () => {
         password: "Password123!",
         role: "BACKEND",
       });
+      expect(mockPush).toHaveBeenCalledWith("/signin");
     });
   });
 
@@ -147,5 +153,6 @@ describe("SignupPage", () => {
         "Email already in use"
       );
     });
+    expect(mockPush).toHaveBeenCalledTimes(0);
   });
 });
