@@ -8,8 +8,10 @@ import { useAuthStore } from "@/application/store/useAuthStore";
 import Spinner from "@/shared/components/Spinner/Spinner";
 import EyeIcon from "@/shared/icons/visibility.svg";
 import EyeOffIcon from "@/shared/icons/visibility_off.svg";
+import { useRouter } from "next/navigation";
 
 export default function SigninPage() {
+  const router = useRouter();
   const { register, handleSubmit, formState } = useSigninForm();
   const { isSubmitting, errors, isValid } = formState;
   const { localSignin, error } = useAuthStore();
@@ -18,10 +20,12 @@ export default function SigninPage() {
   const togglePassword = () => setShowPassword((prev) => !prev);
 
   const onSubmit = handleSubmit(async (data) => {
-    await localSignin({
+    const success = await localSignin({
       email: data.email,
       password: data.password,
     });
+
+    if (success) router.push("/");
   });
 
   return (
