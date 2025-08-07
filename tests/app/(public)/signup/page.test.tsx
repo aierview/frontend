@@ -108,7 +108,7 @@ describe("Signup page", () => {
     );
   });
 
-  it("should change password input to text when view btn is clicked", () => {
+  it("should change password input type when view password button is clicked", () => {
     render(<SignupPage />);
 
     const passwordInput = screen.getByTestId("password") as HTMLInputElement;
@@ -116,8 +116,13 @@ describe("Signup page", () => {
     const errorConfirmPassword = screen.getByTestId(
       "error-password"
     ) as HTMLSpanElement;
+
     fireEvent.click(passwordButton);
     expect(passwordInput.type).toBe("text");
+    expect(errorConfirmPassword.textContent).toBe("");
+
+    fireEvent.click(passwordButton);
+    expect(passwordInput.type).toBe("password");
     expect(errorConfirmPassword.textContent).toBe("");
   });
 });
