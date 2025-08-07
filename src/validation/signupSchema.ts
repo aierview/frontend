@@ -6,9 +6,9 @@ const passwordRegex =
 
 export const signupSchema = z
   .object({
-    name: z.string().min(6, "Inform seu nome completo."),
+    name: z.string().min(6, "Informa seu nome completo."),
     email: z.string().email("Formato de email invalido."),
-    role: z.string("Inform sua funcao."),
+    role: z.string("Informa sua funcao."),
     password: z
       .string()
       .regex(
