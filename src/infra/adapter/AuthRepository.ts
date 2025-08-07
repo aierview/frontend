@@ -1,6 +1,7 @@
 import { HttpStatusCode } from "@/domain/enums/HttpStatusCode";
 import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
+import { InvalidCredentialError } from "@/domain/errors/InvalidCredentialError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
 import { LocalSigninRequest } from "@/domain/model/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
@@ -33,6 +34,8 @@ export class AuthRepository implements IAuhRepository {
     });
 
     switch (httpResponse.statusCode) {
+      case HttpStatusCode.unauthorized:
+        throw new InvalidCredentialError();
       case HttpStatusCode.serverError:
         throw new UnexpectedError();
     }
