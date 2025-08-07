@@ -52,22 +52,60 @@ describe("Signup page", () => {
 
     await screen.findByTestId("error-name");
     let errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
-    expect(errorNameInput.textContent).toBe("Inform seu nome completo.");
+    expect(errorNameInput.textContent).toBe("Informa seu nome completo.");
 
     fireEvent.change(nameInput, { target: { value: "Ger" } });
     await screen.findByTestId("error-name");
     errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
-    expect(errorNameInput.textContent).toBe("Inform seu nome completo.");
+    expect(errorNameInput.textContent).toBe("Informa seu nome completo.");
 
     fireEvent.change(nameInput, { target: { value: "Gerva" } });
     await screen.findByTestId("error-name");
     errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
-    expect(errorNameInput.textContent).toBe("Inform seu nome completo.");
+    expect(errorNameInput.textContent).toBe("Informa seu nome completo.");
 
     fireEvent.change(nameInput, { target: { value: "Gerva" } });
     await screen.findByTestId("error-name");
     errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
-    expect(errorNameInput.textContent).toBe("Inform seu nome completo.");
+    expect(errorNameInput.textContent).toBe("Informa seu nome completo.");
+  });
+
+  it("should show email error message when email is invalid", async () => {
+    render(<SignupPage />);
+
+    const emailInput = screen.getByTestId("email") as HTMLInputElement;
+    fireEvent.change(emailInput, { target: { value: "email" } });
+
+    await screen.findByTestId("error-email");
+    let errorEmailInput = screen.getByTestId("error-email") as HTMLSpanElement;
+    expect(errorEmailInput.textContent).toBe("Formato de email invalido.");
+  });
+
+  it("should show password error message when password is invalid", async () => {
+    render(<SignupPage />);
+
+    const passwordInput = screen.getByTestId("password") as HTMLInputElement;
+    fireEvent.change(passwordInput, { target: { value: "a" } });
+
+    await screen.findByTestId("error-password");
+    let errorPassword = screen.getByTestId("error-password") as HTMLSpanElement;
+    expect(errorPassword.textContent).toBe(
+      "A senha deve ter pelo menos 6 caracteres, uma letra mauscula, um numero e um simbolo."
+    );
+
+    fireEvent.change(passwordInput, { target: { value: "Pasword" } });
+    await screen.findByTestId("error-password");
+    errorPassword = screen.getByTestId("error-password") as HTMLSpanElement;
+    expect(errorPassword.textContent).toBe(
+      "A senha deve ter pelo menos 6 caracteres, uma letra mauscula, um numero e um simbolo."
+    );
+
+    fireEvent.change(passwordInput, { target: { value: "Pasword@" } });
+    await screen.findByTestId("error-password");
+    errorPassword = screen.getByTestId("error-password") as HTMLSpanElement;
+    expect(errorPassword.textContent).toBe(
+      "A senha deve ter pelo menos 6 caracteres, uma letra mauscula, um numero e um simbolo."
+    );
   });
 
   it("should change password input to text when view btn is clicked", () => {
