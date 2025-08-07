@@ -125,4 +125,22 @@ describe("Signup page", () => {
     expect(passwordInput.type).toBe("password");
     expect(errorConfirmPassword.textContent).toBe("");
   });
+
+  it("should show error message when password and confirm password are different", async () => {
+    render(<SignupPage />);
+
+    const passwordInput = screen.getByTestId("password") as HTMLInputElement;
+    const confirmPasswordInput = screen.getByTestId(
+      "confirmPassword"
+    ) as HTMLInputElement;
+    const errorConfirmPassword = screen.getByTestId(
+      "error-confirmPassword"
+    ) as HTMLSpanElement;
+
+    fireEvent.change(passwordInput, { target: { value: "Password" } });
+    fireEvent.change(confirmPasswordInput, { target: { value: "Password2" } });
+
+    await screen.findByTestId("error-confirmPassword");
+    expect(errorConfirmPassword.textContent).toBe("As senhas não coincidem!");
+  });
 });
