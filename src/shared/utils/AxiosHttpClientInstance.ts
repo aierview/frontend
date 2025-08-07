@@ -1,11 +1,10 @@
-// src/core/api/HttpClient.ts
 import axios, { AxiosInstance } from "axios";
 
-export default class HttpClient {
+export default class AxiosHttpClientInstance {
   private static instances: Map<string, AxiosInstance> = new Map();
 
   public static getInstance(baseUrl: string = ""): AxiosInstance {
-    if (!HttpClient.instances.has(baseUrl)) {
+    if (!AxiosHttpClientInstance.instances.has(baseUrl)) {
       const instance = axios.create({
         baseURL: baseUrl,
         timeout: 30000,
@@ -20,9 +19,9 @@ export default class HttpClient {
         (error) => Promise.reject(error)
       );
 
-      HttpClient.instances.set(baseUrl, instance);
+      AxiosHttpClientInstance.instances.set(baseUrl, instance);
     }
 
-    return HttpClient.instances.get(baseUrl)!;
+    return AxiosHttpClientInstance.instances.get(baseUrl)!;
   }
 }
