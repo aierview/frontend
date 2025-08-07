@@ -113,7 +113,10 @@ export default function SignupPage() {
                 {showPassword ? <EyeIcon /> : <EyeOffIcon />}
               </span>
             </span>
-            <span className={styles.errorMessage}>
+            <span
+              data-testid="error-confirmPassword"
+              className={styles.errorMessage}
+            >
               {errors.confirmPassword?.message}
             </span>
           </div>
