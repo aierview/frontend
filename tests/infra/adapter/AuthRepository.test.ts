@@ -105,5 +105,15 @@ describe("AuthRepository", () => {
         body: request,
       });
     });
+
+    it("should trhow unexpectError if post /auth/local/signin returns serverError", async () => {
+      mockAxiosClient.post.mockResolvedValueOnce({
+        statusCode: HttpStatusCode.serverError,
+        body: "dados inválidos",
+      });
+
+      const request: LocalSigninRequest = anyLocalSigninRequest();
+      await expect(sut.localSigin(request)).rejects.toThrow(UnexpectedError);
+    });
   });
 });
