@@ -1,7 +1,13 @@
 import SignupPage from "@/app/(public)/signup/page";
-import { fireEvent, render, screen } from "@testing-library/react";
+import * as factory from "@/main/factory/makeAuthRepository";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { vi } from "vitest";
 
 describe("Signup page", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("should start with initial state", () => {
     render(<SignupPage />);
 
@@ -142,5 +148,86 @@ describe("Signup page", () => {
 
     await screen.findByTestId("error-confirmPassword");
     expect(errorConfirmPassword.textContent).toBe("As senhas não coincidem!");
+  });
+
+  it("should show error message if signup fails", async () => {
+    const mockRepo = {
+      localSignup: vi.fn().mockRejectedValue(new Error("erro simulado")),
+    };
+
+    vi.spyOn(factory, "makeAuthRepository").mockReturnValue(mockRepo);
+
+    const { useAuthStore, createAuthStore } = await import(
+      "@/application/store/useAuthStore"
+    );
+
+    const useTestStore = createAuthStore(mockRepo);
+    vi.spyOn(
+      await import("@/application/store/useAuthStore"),
+      "useAuthStore"
+    ).mockImplementation(useTestStore);
+
+    render(<SignupPage />);
+
+    const nameInput = screen.getByTestId("name") as HTMLInputElement;
+    fireEvent.change(nameInput, { target: { value: "John Doe" } });
+
+    await screen.findByTestId("error-name");
+    let errorNameInput = screen.getByTestId("error-name") as HTMLSpanElement;
+    expect(errorNameInput.textContent).toBe("");
+
+    const emailInput = screen.getByTestId("email") as HTMLInputElement;
+    fireEvent.change(emailInput, { target: { value: "john@example.com" } });
+
+    await screen.findByTestId("error-email");
+    let errorEmailInput = screen.getByTestId("error-email") as HTMLSpanElement;
+    expect(errorEmailInput.textContent).toBe("");
+
+    const roleInput = screen.getByTestId("role") as HTMLSelectElement;
+    fireEvent.change(roleInput, { target: { value: 2 } });
+
+    await screen.findByTestId("error-role");
+    let errorRoleInput = screen.getByTestId("error-role") as HTMLSpanElement;
+    expect(errorRoleInput.textContent).toBe("");
+
+    const passwordInput = screen.getByTestId("password") as HTMLInputElement;
+    fireEvent.change(passwordInput, { target: { value: "Password123!" } });
+
+    await screen.findByTestId("error-password");
+    let errorPassword = screen.getByTestId("error-password") as HTMLSpanElement;
+    expect(errorPassword.textContent).toBe("");
+
+    const confirmPasswordInput = screen.getByTestId(
+      "confirmPassword"
+    ) as HTMLInputElement;
+    fireEvent.change(confirmPasswordInput, {
+      target: { value: "Password123!" },
+    });
+
+    await screen.findByTestId("error-confirmPassword");
+    let errorConfirmPassword = screen.getByTestId(
+      "error-confirmPassword"
+    ) as HTMLSpanElement;
+    expect(errorConfirmPassword.textContent).toBe("");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("submit")).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByTestId("submit"));
+
+    // await waitFor(async () => {
+    //   expect(localSignupMock).toHaveBeenCalledWith({
+    //     name: "John Doe",
+    //     email: "john@example.com",
+    //     role: "BACKEND",
+    //     password: "Password123!",
+    //   });
+    // });
+
+    await waitFor(() => {
+      const error = screen.getByTestId("error-subimt");
+      expect(error.textContent).toBe("erro simulado");
+    });
   });
 });
