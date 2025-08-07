@@ -6,7 +6,6 @@ import {
   anyLocalSigninRequest,
   anyLocalSignupRequest,
 } from "@@/shared/testdata/auth-test-fixture";
-import { AxiosError } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("useAuthStore", () => {
@@ -78,7 +77,19 @@ describe("useAuthStore", () => {
       expect(zustandStore.getState().isLoading).toBe(false);
       expect(zustandStore.getState().error).toBe(null);
     });
+
+    it("should handle error on localSignin", async () => {
+      const request: LocalSigninRequest = anyLocalSigninRequest();
+
+      mockRepo.localSignin.mockRejectedValueOnce(
+        new Error("An error occurred!")
+      );
+
+      await zustandStore.getState().localSignin(request);
+
+      expect(mockRepo.localSignin).toHaveBeenCalledWith(request);
+      expect(zustandStore.getState().isLoading).toBe(false);
+      expect(zustandStore.getState().error).toBe("An error occurred!");
+    });
   });
 });
-
-AxiosError;
