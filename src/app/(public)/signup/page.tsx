@@ -12,13 +12,13 @@ import EyeOffIcon from "@/shared/icons/visibility_off.svg";
 export default function SignupPage() {
   const { register, handleSubmit, formState } = useSignupForm();
   const { isSubmitting, errors, isValid } = formState;
-  const signup = useAuthStore((state) => state.localSignup);
+  const { localSignup, error } = useAuthStore();
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePassword = () => setShowPassword((prev) => !prev);
 
   const onSubmit = handleSubmit(async (data) => {
-    await signup({
+    await localSignup({
       name: data.name,
       email: data.email,
       password: data.password,
@@ -127,6 +127,9 @@ export default function SignupPage() {
           >
             Sign up
           </button>
+          <span data-testid="error-subimt" className={styles.errorSubmit}>
+            {error}
+          </span>
         </form>
         <div className={styles.links}>
           <span>Already have an account? </span>
