@@ -34,6 +34,8 @@ export class AuthRepository implements IAuhRepository {
     });
 
     switch (httpResponse.statusCode) {
+      case HttpStatusCode.badRequest:
+        throw new BadRequestError(httpResponse.body);
       case HttpStatusCode.unauthorized:
         throw new InvalidCredentialError();
       case HttpStatusCode.serverError:
