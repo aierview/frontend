@@ -1,8 +1,9 @@
 import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
 import { IAuhRepository } from "@/domain/repository/IAuhRepository";
+import { makeAuthRepository } from "@/main/factory/makeAuthRepository";
 import { create } from "zustand";
 
-type AuthStore = {
+export type AuthStore = {
   isLoading: boolean;
   error: string | null;
 
@@ -25,3 +26,5 @@ export const createAuthStore = (repo: IAuhRepository) =>
       }
     },
   }));
+
+export const useAuthStore = createAuthStore(makeAuthRepository());

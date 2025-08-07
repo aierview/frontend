@@ -6,12 +6,13 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "src"),
       "@@": path.resolve(__dirname, "tests"),
+      "^.+\\.svg$": "/tests/__mocks__/svg.tsx",
     },
   },
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: "./vitest.setup.ts",
+    setupFiles: "./vitest.setup.tsx",
     include: ["tests/**/*.test.{ts,tsx}"],
   },
 });
