@@ -8,8 +8,8 @@ export type AuthStore = {
   isLoading: boolean;
   error: string | null;
 
-  localSignup: (request: LocalSignupRequest) => Promise<void>;
-  localSignin: (request: LocalSigninRequest) => Promise<void>;
+  localSignup: (request: LocalSignupRequest) => Promise<boolean>;
+  localSignin: (request: LocalSigninRequest) => Promise<boolean>;
 };
 
 export const createAuthStore = (repo: IAuhRepository) =>
@@ -18,24 +18,32 @@ export const createAuthStore = (repo: IAuhRepository) =>
     error: null,
 
     localSignup: async (request: LocalSignupRequest) => {
+      let result: boolean = false;
       set({ isLoading: true, error: null });
       try {
         await repo.localSignup(request);
+        result = true;
       } catch (error) {
         set({ error: (error as Error).message });
+        result = false;
       } finally {
         set({ isLoading: false });
       }
+      return result;
     },
     localSignin: async (request: LocalSigninRequest) => {
+      let result: boolean = false;
       set({ isLoading: true, error: null });
       try {
         await repo.localSignin(request);
+        result = true;
       } catch (error) {
         set({ error: (error as Error).message });
+        result = false;
       } finally {
         set({ isLoading: false });
       }
+      return result;
     },
   }));
 

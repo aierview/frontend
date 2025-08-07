@@ -30,8 +30,9 @@ describe("useAuthStore", () => {
 
       mockRepo.localSignup.mockResolvedValueOnce(undefined);
 
-      await zustandStore.getState().localSignup(request);
+      const result = await zustandStore.getState().localSignup(request);
 
+      expect(result).toBeTruthy();
       expect(mockRepo.localSignup).toHaveBeenCalledWith(request);
       expect(zustandStore.getState().isLoading).toBe(false);
       expect(zustandStore.getState().error).toBe(null);
@@ -44,8 +45,9 @@ describe("useAuthStore", () => {
         new Error("An error occurred!")
       );
 
-      await zustandStore.getState().localSignup(request);
+      const result = await zustandStore.getState().localSignup(request);
 
+      expect(result).toBeFalsy();
       expect(mockRepo.localSignup).toHaveBeenCalledWith(request);
       expect(zustandStore.getState().isLoading).toBe(false);
       expect(zustandStore.getState().error).toBe("An error occurred!");
@@ -71,8 +73,9 @@ describe("useAuthStore", () => {
 
       mockRepo.localSignin.mockResolvedValueOnce(undefined);
 
-      await zustandStore.getState().localSignin(request);
+      const result = await zustandStore.getState().localSignin(request);
 
+      expect(result).toBeTruthy();
       expect(mockRepo.localSignin).toHaveBeenCalledWith(request);
       expect(zustandStore.getState().isLoading).toBe(false);
       expect(zustandStore.getState().error).toBe(null);
@@ -85,8 +88,9 @@ describe("useAuthStore", () => {
         new Error("An error occurred!")
       );
 
-      await zustandStore.getState().localSignin(request);
+      const result = await zustandStore.getState().localSignin(request);
 
+      expect(result).toBeFalsy();
       expect(mockRepo.localSignin).toHaveBeenCalledWith(request);
       expect(zustandStore.getState().isLoading).toBe(false);
       expect(zustandStore.getState().error).toBe("An error occurred!");
