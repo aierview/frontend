@@ -4,6 +4,7 @@ import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
 import { InvalidCredentialError } from "@/domain/errors/InvalidCredentialError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
+import { GoogleSignupRequest } from "@/domain/model/google/GoogleSignupRequest";
 import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
 import { AuthRepositoryAdapter } from "@/infra/adapter/AuthRepositoryAdapter";
@@ -157,11 +158,82 @@ describe("AuthRepository", () => {
 
     it("should default to UnexpectedError for unhandled status", async () => {
       vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
-        statusCode: 999,
+        statusCode: 504,
         body: null,
       });
 
       const response = await authRepo.localSignin(signinRequest);
+
+      expect(response.success).toBe(false);
+      expect(response.data).toBeInstanceOf(UnexpectedError);
+    });
+  });
+
+  describe("GoogleSingup", () => {
+    const googleSigupRequest: GoogleSignupRequest = {
+      idToken: "any_id_token",
+    };
+
+    it("should return success when status is 201 (created)", async () => {
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: HttpStatusCode.created,
+        body: null,
+      });
+
+      const response = await authRepo.googleSignup(googleSigupRequest);
+
+      expect(response).toEqual({
+        success: true,
+        data: null,
+      });
+    });
+
+    it("should return BadRequestError when status is 400", async () => {
+      const body = { message: "Invalid data" };
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: HttpStatusCode.badRequest,
+        body,
+      });
+
+      const response = await authRepo.googleSignup(googleSigupRequest);
+
+      expect(response.success).toBe(false);
+      expect(response.data).toEqual(new BadRequestError(body));
+    });
+
+    it("should return EmailAlreadyInUseError when status is 409", async () => {
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: HttpStatusCode.conflict,
+        body: "O email ja esta sendo utilizado!",
+      });
+
+      const response = await authRepo.googleSignup(googleSigupRequest);
+
+      expect(response.success).toBe(false);
+      expect(response.data).toEqual(
+        new EmailAlreadyInUseError("", "O email ja esta sendo utilizado!")
+      );
+    });
+
+    it("should return UnexpectedError when status is 500", async () => {
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: HttpStatusCode.serverError,
+        body: null,
+      });
+
+      const response = await authRepo.googleSignup(googleSigupRequest);
+
+      expect(response.success).toBe(false);
+      expect(response.data).toBeInstanceOf(UnexpectedError);
+    });
+
+    it("should default to UnexpectedError for unhandled status", async () => {
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: HttpStatusCode.serverError,
+        body: null,
+      });
+
+      const response = await authRepo.googleSignup(googleSigupRequest);
 
       expect(response.success).toBe(false);
       expect(response.data).toBeInstanceOf(UnexpectedError);
