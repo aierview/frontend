@@ -9,11 +9,12 @@ import { useAuthStore } from "@/application/store/useAuthStore";
 import Spinner from "@/shared/components/Spinner/Spinner";
 import EyeIcon from "@/shared/icons/visibility.svg";
 import EyeOffIcon from "@/shared/icons/visibility_off.svg";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { localSignup, error } = useAuthStore();
+  const { localSignup, googleSignup, error, setError } = useAuthStore();
   const { register, handleSubmit, formState } = useSignupForm();
   const { isSubmitting, errors, isValid } = formState;
 
@@ -30,6 +31,16 @@ export default function SignupPage() {
 
     if (success) router.push("/signin");
   });
+
+  const google = async (credentialResponse: CredentialResponse) => {
+    const idToken = credentialResponse.credential as string;
+    const result = await googleSignup({ idToken });
+    if (result) router.push("/");
+  };
+
+  const onError = () => {
+    setError("Houve um erro ao realizar o cadastro com o Google.");
+  };
 
   const roles = Object.keys(UserRole).filter((key) => isNaN(Number(key)));
 
@@ -132,6 +143,13 @@ export default function SignupPage() {
           >
             Sign up
           </button>
+          <div
+            className={`${styles.googleLogin} ${
+              isSubmitting && styles.disabled
+            } `}
+          >
+            <GoogleLogin onSuccess={google} onError={onError} />
+          </div>
           <div className={styles.errorSubmit}>
             {isSubmitting ? (
               <Spinner />

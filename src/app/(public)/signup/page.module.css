@@ -155,8 +155,8 @@
   cursor: pointer;
 }
 
-.form button:hover,
-.form button:focus {
+.form button:not(:disabled):hover,
+.form button:not(:disabled):focus {
   filter: brightness(0.5);
 }
 
@@ -165,12 +165,22 @@
   cursor: not-allowed;
 }
 
+.googleLogin {
+  display: flex;
+  justify-content: center;
+}
+
+.disbled {
+  visibility: hidden;
+}
+
 .errorSubmit {
   text-align: center;
-  height: 12px;
+  height: 13px;
   color: red;
-  font-size: 0.625rem;
+  font-size: 12px;
   font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .links a {
