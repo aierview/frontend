@@ -46,8 +46,6 @@ export class AuthRepositoryAdapter implements IAuhRepository {
   }
 
   async localSignin(request: LocalSigninRequest): Promise<RepositoryResponse> {
-    let repoResponse: RepositoryResponse;
-
     const httpResponse = await this.axiosClient.post({
       url: "/auth/local/signin",
       body: request,
