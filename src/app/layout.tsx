@@ -1,4 +1,6 @@
 import "@/shared/styles/globals.css";
+import { GOOGLE_CLIENT_ID } from "@/shared/utils/lib";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -19,7 +21,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          {children}
+        </GoogleOAuthProvider>
+      </body>
     </html>
   );
 }

@@ -68,6 +68,40 @@ describe("AxiosHttpClient", () => {
     });
   });
 
+  it("Should return status 401 if the error is an AxiosError (401)", async () => {
+    mockPost.mockRejectedValueOnce({
+      isAxiosError: true,
+      response: {
+        status: 401,
+        data: { data: "Bad credentials" },
+      },
+    });
+
+    const response = await sut.post(requestData);
+
+    expect(response).toEqual({
+      statusCode: 401,
+      body: "Bad credentials",
+    });
+  });
+
+  it("Should return status 409 if the error is an AxiosError (409)", async () => {
+    mockPost.mockRejectedValueOnce({
+      isAxiosError: true,
+      response: {
+        status: 409,
+        data: { data: "Emails already in use" },
+      },
+    });
+
+    const response = await sut.post(requestData);
+
+    expect(response).toEqual({
+      statusCode: 409,
+      body: "Emails already in use",
+    });
+  });
+
   it("Should return status 500 if the error is not an AxiosError", async () => {
     mockPost.mockRejectedValueOnce(new Error("algum erro genérico"));
 

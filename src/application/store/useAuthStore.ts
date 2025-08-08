@@ -1,13 +1,18 @@
-import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
-import { IAuhRepository } from "@/domain/repository/IAuhRepository";
-import { makeAuthRepository } from "@/main/factory/makeAuthRepository";
+import { IAuhRepository } from "@/domain/contract/repository/IAuhRepository";
+import { GoogleSignupRequest } from "@/domain/model/google/GoogleSignupRequest";
+import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
+import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
+import { makeAuthRepository } from "@/main/factory/makeAuthRepositoryAdapter";
 import { create } from "zustand";
 
 export type AuthStore = {
-  isLoading: boolean;
   error: string | null;
+  setError: (error: string | null) => void;
 
-  localSignup: (request: LocalSignupRequest) => Promise<void>;
+  localSignup: (request: LocalSignupRequest) => Promise<boolean>;
+  localSignin: (request: LocalSigninRequest) => Promise<boolean>;
+
+  googleSignup: (request: GoogleSignupRequest) => Promise<boolean>;
 };
 
 export const createAuthStore = (repo: IAuhRepository) =>
@@ -15,15 +20,36 @@ export const createAuthStore = (repo: IAuhRepository) =>
     isLoading: false,
     error: null,
 
+    setError: (error: string | null) => {
+      set({ error });
+    },
+
     localSignup: async (request: LocalSignupRequest) => {
-      set({ isLoading: true, error: null });
-      try {
-        await repo.localSignup(request);
-      } catch (error) {
-        set({ error: (error as Error).message });
-      } finally {
-        set({ isLoading: false });
+      set({ error: null });
+      const result = await repo.localSignup(request);
+      if (!result.success) {
+        set({ error: result.data.message });
+        return false;
       }
+      return true;
+    },
+    localSignin: async (request: LocalSigninRequest) => {
+      set({ error: null });
+      const result = await repo.localSignin(request);
+      if (!result.success) {
+        set({ error: result.data.message });
+        return false;
+      }
+      return true;
+    },
+    googleSignup: async (request: GoogleSignupRequest) => {
+      set({ error: null });
+      const result = await repo.googleSignup(request);
+      if (!result.success) {
+        set({ error: result.data.message });
+        return false;
+      }
+      return true;
     },
   }));
 

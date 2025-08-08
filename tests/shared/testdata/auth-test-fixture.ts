@@ -1,5 +1,6 @@
 import { UserRole } from "@/domain/enums/UserRole";
-import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
+import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
+import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
 
 export function anyLocalSignupRequest(): LocalSignupRequest {
   return {
@@ -7,6 +8,13 @@ export function anyLocalSignupRequest(): LocalSignupRequest {
     password: "senhaSegura123",
     name: "Gervasio",
     role: UserRole.FULLSTACK,
+  };
+}
+
+export function anyLocalSigninRequest(): LocalSigninRequest {
+  return {
+    email: "gervasio@example.com",
+    password: "senhaSegura123",
   };
 }
 

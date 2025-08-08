@@ -13,7 +13,7 @@
   background: #fff;
   border-radius: 8px;
 
-  gap: 0.5rem;
+  gap: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,7 +24,7 @@
 .formWrapper h1 {
   width: 100%;
 
-  font-size: 3rem;
+  gap: 0.5rem;
   font-weight: bold;
   text-align: center;
 }
@@ -33,7 +33,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .inputWrapper {
@@ -74,58 +74,6 @@
   color: #a1a1a1;
 }
 
-.inputWrapper select {
-  appearance: base-select;
-  height: 55px;
-
-  display: flex;
-  align-items: center;
-  padding: 0px 1rem;
-  font-size: 0.75rem;
-  background: #d1cfff;
-  border-radius: 8px;
-  border: 1px solid #d1cfff;
-  outline: none;
-}
-
-.inputWrapper input:focus,
-.inputWrapper input:hover,
-.inputWrapper select:hover,
-.inputWrapper select:focus {
-  border: 1px solid #6c63ff;
-}
-
-.inputWrapper select::picker-icon {
-  color: #6c63ff;
-
-  display: flex;
-  justify-content: flex-start;
-  gap: 1.25rem;
-}
-
-.inputWrapper select option {
-  background: #bbb7ff;
-  padding: 0.5rem;
-}
-
-.inputWrapper select option:last-of-type {
-  border-radius: 0 0 8px 8px;
-}
-
-.inputWrapper select option:first-of-type {
-  border-radius: 8px 8px 0px 0px;
-}
-
-.inputWrapper select option:not(option:last-of-type) {
-  border-bottom: none;
-}
-
-.inputWrapper option:hover,
-.inputWrapper option:focus {
-  cursor: pointer;
-  background: #6c63ff;
-}
-
 .passwordWraper {
   position: relative;
   display: flex;
@@ -155,8 +103,8 @@
   cursor: pointer;
 }
 
-.form button:not(:disabled):hover,
-.form button:not(:disabled):focus {
+.form button:hover,
+.form button:focus {
   filter: brightness(0.5);
 }
 
@@ -165,22 +113,12 @@
   cursor: not-allowed;
 }
 
-.googleLogin {
-  display: flex;
-  justify-content: center;
-}
-
-.disbled {
-  visibility: hidden;
-}
-
 .errorSubmit {
   text-align: center;
-  height: 13px;
+  height: 12px;
   color: red;
-  font-size: 12px;
+  font-size: 0.625rem;
   font-weight: 600;
-  margin-bottom: 10px;
 }
 
 .links a {
