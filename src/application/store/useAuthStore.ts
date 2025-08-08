@@ -7,6 +7,7 @@ import { create } from "zustand";
 
 export type AuthStore = {
   error: string | null;
+  setError: (error: string | null) => void;
 
   localSignup: (request: LocalSignupRequest) => Promise<boolean>;
   localSignin: (request: LocalSigninRequest) => Promise<boolean>;
@@ -18,6 +19,10 @@ export const createAuthStore = (repo: IAuhRepository) =>
   create<AuthStore>((set) => ({
     isLoading: false,
     error: null,
+
+    setError: (error: string | null) => {
+      set({ error });
+    },
 
     localSignup: async (request: LocalSignupRequest) => {
       set({ error: null });
