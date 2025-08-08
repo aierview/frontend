@@ -3,9 +3,9 @@ import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
 import { InvalidCredentialError } from "@/domain/errors/InvalidCredentialError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
-import { LocalSigninRequest } from "@/domain/model/LocalSigninRequest";
-import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
-import { RepositoryResponse } from "@/domain/model/RepositoryResponse";
+import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
+import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
+import { RepositoryResponse } from "@/domain/model/repository/RepositoryResponse";
 import { IAuhRepository } from "@/domain/repository/IAuhRepository";
 import { AxiosHttpClient } from "@/infra/axios/AxiosHttpClient";
 

@@ -1,6 +1,6 @@
 import { UserRole } from "@/domain/enums/UserRole";
-import { LocalSigninRequest } from "@/domain/model/LocalSigninRequest";
-import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
+import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
+import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
 
 export function anyLocalSignupRequest(): LocalSignupRequest {
   return {

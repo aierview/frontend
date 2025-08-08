@@ -1,8 +1,8 @@
 import { createAuthStore } from "@/application/store/useAuthStore";
 import { UserRole } from "@/domain/enums/UserRole";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
-import { LocalSigninRequest } from "@/domain/model/LocalSigninRequest";
-import { LocalSignupRequest } from "@/domain/model/LocalSignupRequest";
+import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
+import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
 import { IAuhRepository } from "@/domain/repository/IAuhRepository";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

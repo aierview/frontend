@@ -1,6 +1,6 @@
-import { IHttpPostClient } from "@/domain/http/IHttpPostClient";
-import { HttpPostParams } from "@/domain/model/HttpPostParams";
-import { HttpResponse } from "@/domain/model/HttpResponse";
+import { IHttpPostClient } from "@/domain/contract/http/IHttpPostClient";
+import { HttpPostParams } from "@/domain/model/http/HttpPostParams";
+import { HttpResponse } from "@/domain/model/http/HttpResponse";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
