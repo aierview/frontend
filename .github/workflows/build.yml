@@ -1,0 +1,45 @@
+name: Build and Test
+
+on:
+  pull_request:
+    branches: [main, homolog]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build da aplicação
+        run: npm run build
+
+      - name: Rodar testes com cobertura
+        run: npm run test -- --coverage
+
+      - name: Checar cobertura mínima
+        run: |
+          COVERAGE_FILE="coverage/coverage-summary.json"
+          MIN_COVERAGE=80
+
+          check_coverage() {
+            local name=$1
+            local value=$(jq ".total.\"$name\".pct" < "$COVERAGE_FILE")
+            if (( $(echo "$value < $MIN_COVERAGE" | bc -l) )); then
+              echo "$name coverage ($value%) is below minimum ($MIN_COVERAGE%)"
+              exit 1
+            fi
+          }
+
+          check_coverage "statements"
+          check_coverage "branches"
+          check_coverage "functions"
+          check_coverage "lines"

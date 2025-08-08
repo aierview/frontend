@@ -1,7 +1,7 @@
 import { IAuhRepository } from "@/domain/repository/IAuhRepository";
-import { AuthRepository } from "@/infra/adapter/AuthRepository";
+import { AuthRepositoryAdapter } from "@/infra/adapter/AuthRepositoryAdapter";
 import { makeAxiosHttpClient } from "./makeAxiosHttpClient";
 
 export const makeAuthRepository = (): IAuhRepository => {
-  return new AuthRepository(makeAxiosHttpClient());
+  return new AuthRepositoryAdapter(makeAxiosHttpClient());
 };
