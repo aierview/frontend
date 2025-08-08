@@ -1,15 +1,18 @@
 import { createAuthStore } from "@/application/store/useAuthStore";
+import { IAuhRepository } from "@/domain/contract/repository/IAuhRepository";
 import { UserRole } from "@/domain/enums/UserRole";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
+import { GoogleSignupRequest } from "@/domain/model/google/GoogleSignupRequest";
 import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
-import { IAuhRepository } from "@/domain/repository/IAuhRepository";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // mocks
 const mockRepo: IAuhRepository = {
   localSignup: vi.fn(),
   localSignin: vi.fn(),
+
+  googleSignup: vi.fn(),
 };
 
 const requestSignup: LocalSignupRequest = {
@@ -22,6 +25,10 @@ const requestSignup: LocalSignupRequest = {
 const requestSignin: LocalSigninRequest = {
   email: "test@example.com",
   password: "password123",
+};
+
+const requestGoogleSigup: GoogleSignupRequest = {
+  idToken: "any_id_token",
 };
 
 describe("AuthStore", () => {
@@ -87,6 +94,21 @@ describe("AuthStore", () => {
 
       expect(result).toBe(false);
       expect(store.getState().error).toBe(error.message);
+    });
+  });
+
+  describe("GoogleSignup", () => {
+    it("should return true and not set error when google signup is successful", async () => {
+      vi.mocked(mockRepo.googleSignup).mockResolvedValueOnce({
+        success: true,
+        data: null,
+      });
+
+      const result = await store.getState().googleSignup(requestGoogleSigup);
+
+      expect(result).toBe(true);
+      expect(store.getState().error).toBe(null);
+      expect(mockRepo.googleSignup).toHaveBeenCalledWith(requestGoogleSigup);
     });
   });
 });
