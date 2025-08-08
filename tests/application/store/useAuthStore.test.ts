@@ -48,7 +48,7 @@ describe("AuthStore", () => {
 
       const result = await store.getState().localSignup(requestSignup);
 
-      expect(result).toBe(true);
+      expect(result).toBeTruthy();
       expect(store.getState().error).toBe(null);
       expect(mockRepo.localSignup).toHaveBeenCalledWith(requestSignup);
     });
@@ -63,7 +63,7 @@ describe("AuthStore", () => {
 
       const result = await store.getState().localSignup(requestSignup);
 
-      expect(result).toBe(false);
+      expect(result).toBeFalsy();
       expect(store.getState().error).toBe(error.message);
     });
   });
@@ -77,7 +77,7 @@ describe("AuthStore", () => {
 
       const result = await store.getState().localSignin(requestSignin);
 
-      expect(result).toBe(true);
+      expect(result).toBeTruthy();
       expect(store.getState().error).toBe(null);
       expect(mockRepo.localSignin).toHaveBeenCalledWith(requestSignin);
     });
@@ -92,7 +92,7 @@ describe("AuthStore", () => {
 
       const result = await store.getState().localSignin(requestSignin);
 
-      expect(result).toBe(false);
+      expect(result).toBeFalsy();
       expect(store.getState().error).toBe(error.message);
     });
   });
@@ -106,9 +106,23 @@ describe("AuthStore", () => {
 
       const result = await store.getState().googleSignup(requestGoogleSigup);
 
-      expect(result).toBe(true);
+      expect(result).toBeTruthy();
       expect(store.getState().error).toBe(null);
       expect(mockRepo.googleSignup).toHaveBeenCalledWith(requestGoogleSigup);
+    });
+
+    it("should return false and set error when google signup fails", async () => {
+      const error = new UnexpectedError();
+
+      vi.mocked(mockRepo.googleSignup).mockResolvedValueOnce({
+        success: false,
+        data: error,
+      });
+
+      const result = await store.getState().googleSignup(requestGoogleSigup);
+
+      expect(result).toBeFalsy();
+      expect(store.getState().error).toBe(error.message);
     });
   });
 });
