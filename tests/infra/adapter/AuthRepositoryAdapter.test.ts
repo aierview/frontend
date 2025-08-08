@@ -4,7 +4,7 @@ import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
 import { InvalidCredentialError } from "@/domain/errors/InvalidCredentialError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
-import { GoogleSigninRequest } from "@/domain/model/google/GoogleAuthRequest";
+import { GoogleAuthRequest } from "@/domain/model/google/GoogleAuthRequest";
 import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
 import { AuthRepositoryAdapter } from "@/infra/adapter/AuthRepositoryAdapter";
@@ -170,7 +170,7 @@ describe("AuthRepository", () => {
   });
 
   describe("GoogleSingup", () => {
-    const googleSigupRequest: GoogleSigninRequest = {
+    const googleSigupRequest: GoogleAuthRequest = {
       idToken: "any_id_token",
     };
 
@@ -241,7 +241,7 @@ describe("AuthRepository", () => {
   });
 
   describe("googleSignin", () => {
-    const googlesigninRequest: GoogleSigninRequest = {
+    const googlesigninRequest: GoogleAuthRequest = {
       idToken: "any_id_token",
     };
 

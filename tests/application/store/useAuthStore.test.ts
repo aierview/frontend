@@ -2,7 +2,7 @@ import { createAuthStore } from "@/application/store/useAuthStore";
 import { IAuhRepository } from "@/domain/contract/repository/IAuhRepository";
 import { UserRole } from "@/domain/enums/UserRole";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
-import { GoogleSigninRequest } from "@/domain/model/google/GoogleAuthRequest";
+import { GoogleAuthRequest } from "@/domain/model/google/GoogleAuthRequest";
 import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -13,6 +13,7 @@ const mockRepo: IAuhRepository = {
   localSignin: vi.fn(),
 
   googleSignup: vi.fn(),
+  googleSignin: vi.fn(),
 };
 
 const requestSignup: LocalSignupRequest = {
@@ -27,7 +28,7 @@ const requestSignin: LocalSigninRequest = {
   password: "password123",
 };
 
-const requestGoogleSigup: GoogleSigninRequest = {
+const requestGoogleSigup: GoogleAuthRequest = {
   idToken: "any_id_token",
 };
 
@@ -120,6 +121,35 @@ describe("AuthStore", () => {
       });
 
       const result = await store.getState().googleSignup(requestGoogleSigup);
+
+      expect(result).toBeFalsy();
+      expect(store.getState().error).toBe(error.message);
+    });
+  });
+
+  describe("GoogleSignin", () => {
+    it("should return true and not set error when google signin is successful", async () => {
+      vi.mocked(mockRepo.googleSignin).mockResolvedValueOnce({
+        success: true,
+        data: null,
+      });
+
+      const result = await store.getState().googleSignin(requestGoogleSigup);
+
+      expect(result).toBeTruthy();
+      expect(store.getState().error).toBe(null);
+      expect(mockRepo.googleSignin).toHaveBeenCalledWith(requestGoogleSigup);
+    });
+
+    it("should return false and set error when google signup fails", async () => {
+      const error = new UnexpectedError();
+
+      vi.mocked(mockRepo.googleSignin).mockResolvedValueOnce({
+        success: false,
+        data: error,
+      });
+
+      const result = await store.getState().googleSignin(requestGoogleSigup);
 
       expect(result).toBeFalsy();
       expect(store.getState().error).toBe(error.message);
