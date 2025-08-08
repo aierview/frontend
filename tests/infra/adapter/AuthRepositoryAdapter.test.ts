@@ -4,7 +4,7 @@ import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
 import { InvalidCredentialError } from "@/domain/errors/InvalidCredentialError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
-import { GoogleSignupRequest } from "@/domain/model/google/GoogleSignupRequest";
+import { GoogleSigninRequest } from "@/domain/model/google/GoogleAuthRequest";
 import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
 import { AuthRepositoryAdapter } from "@/infra/adapter/AuthRepositoryAdapter";
@@ -170,7 +170,7 @@ describe("AuthRepository", () => {
   });
 
   describe("GoogleSingup", () => {
-    const googleSigupRequest: GoogleSignupRequest = {
+    const googleSigupRequest: GoogleSigninRequest = {
       idToken: "any_id_token",
     };
 
@@ -234,6 +234,75 @@ describe("AuthRepository", () => {
       });
 
       const response = await authRepo.googleSignup(googleSigupRequest);
+
+      expect(response.success).toBe(false);
+      expect(response.data).toBeInstanceOf(UnexpectedError);
+    });
+  });
+
+  describe("googleSignin", () => {
+    const googlesigninRequest: GoogleSigninRequest = {
+      idToken: "any_id_token",
+    };
+
+    it("should return success when status is 200 (ok)", async () => {
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: HttpStatusCode.ok,
+        body: null,
+      });
+
+      const response = await authRepo.googleSignin(googlesigninRequest);
+
+      expect(response).toEqual({
+        success: true,
+        data: null,
+      });
+    });
+
+    it("should return BadRequestError when status is 400", async () => {
+      const body = { message: "Missing fields" };
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: HttpStatusCode.badRequest,
+        body,
+      });
+
+      const response = await authRepo.googleSignin(googlesigninRequest);
+
+      expect(response.success).toBe(false);
+      expect(response.data).toEqual(new BadRequestError(body));
+    });
+
+    it("should return InvalidCredentialError when status is 401", async () => {
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: HttpStatusCode.unauthorized,
+        body: null,
+      });
+
+      const response = await authRepo.googleSignin(googlesigninRequest);
+
+      expect(response.success).toBe(false);
+      expect(response.data).toBeInstanceOf(InvalidCredentialError);
+    });
+
+    it("should return UnexpectedError when status is 500", async () => {
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: HttpStatusCode.serverError,
+        body: null,
+      });
+
+      const response = await authRepo.googleSignin(googlesigninRequest);
+
+      expect(response.success).toBe(false);
+      expect(response.data).toBeInstanceOf(UnexpectedError);
+    });
+
+    it("should default to UnexpectedError for unhandled status", async () => {
+      vi.mocked(mockAxiosClient.post).mockResolvedValueOnce({
+        statusCode: 504,
+        body: null,
+      });
+
+      const response = await authRepo.googleSignin(googlesigninRequest);
 
       expect(response.success).toBe(false);
       expect(response.data).toBeInstanceOf(UnexpectedError);

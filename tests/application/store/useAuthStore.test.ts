@@ -2,7 +2,7 @@ import { createAuthStore } from "@/application/store/useAuthStore";
 import { IAuhRepository } from "@/domain/contract/repository/IAuhRepository";
 import { UserRole } from "@/domain/enums/UserRole";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
-import { GoogleSignupRequest } from "@/domain/model/google/GoogleSignupRequest";
+import { GoogleSigninRequest } from "@/domain/model/google/GoogleAuthRequest";
 import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -27,7 +27,7 @@ const requestSignin: LocalSigninRequest = {
   password: "password123",
 };
 
-const requestGoogleSigup: GoogleSignupRequest = {
+const requestGoogleSigup: GoogleSigninRequest = {
   idToken: "any_id_token",
 };
 
