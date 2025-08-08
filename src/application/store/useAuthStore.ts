@@ -1,6 +1,7 @@
+import { IAuhRepository } from "@/domain/contract/repository/IAuhRepository";
+import { GoogleSignupRequest } from "@/domain/model/google/GoogleSignupRequest";
 import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
-import { IAuhRepository } from "@/domain/repository/IAuhRepository";
 import { makeAuthRepository } from "@/main/factory/makeAuthRepositoryAdapter";
 import { create } from "zustand";
 
@@ -9,6 +10,8 @@ export type AuthStore = {
 
   localSignup: (request: LocalSignupRequest) => Promise<boolean>;
   localSignin: (request: LocalSigninRequest) => Promise<boolean>;
+
+  googleSignup: (request: GoogleSignupRequest) => Promise<boolean>;
 };
 
 export const createAuthStore = (repo: IAuhRepository) =>
@@ -28,6 +31,15 @@ export const createAuthStore = (repo: IAuhRepository) =>
     localSignin: async (request: LocalSigninRequest) => {
       set({ error: null });
       const result = await repo.localSignin(request);
+      if (!result.success) {
+        set({ error: result.data.message });
+        return false;
+      }
+      return true;
+    },
+    googleSignup: async (request: GoogleSignupRequest) => {
+      set({ error: null });
+      const result = await repo.googleSignup(request);
       if (!result.success) {
         set({ error: result.data.message });
         return false;
