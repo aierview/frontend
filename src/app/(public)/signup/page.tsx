@@ -35,7 +35,7 @@ export default function SignupPage() {
   const google = async (credentialResponse: CredentialResponse) => {
     const idToken = credentialResponse.credential as string;
     const result = await googleSignup({ idToken });
-    if (result) router.push("/");
+    if (result) router.push("/signin");
   };
 
   const onError = () => {
