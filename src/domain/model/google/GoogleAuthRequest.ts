@@ -1,3 +1,3 @@
-export type GoogleSigninRequest = {
+export type GoogleAuthRequest = {
   idToken: string;
 };

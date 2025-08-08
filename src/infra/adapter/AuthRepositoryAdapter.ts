@@ -4,7 +4,7 @@ import { BadRequestError } from "@/domain/errors/BadRequestError";
 import { EmailAlreadyInUseError } from "@/domain/errors/EmailAlreadyInUseError";
 import { InvalidCredentialError } from "@/domain/errors/InvalidCredentialError";
 import { UnexpectedError } from "@/domain/errors/UnexpectedError";
-import { GoogleSigninRequest } from "@/domain/model/google/GoogleAuthRequest";
+import { GoogleAuthRequest } from "@/domain/model/google/GoogleAuthRequest";
 import { LocalSigninRequest } from "@/domain/model/local/LocalSigninRequest";
 import { LocalSignupRequest } from "@/domain/model/local/LocalSignupRequest";
 import { RepositoryResponse } from "@/domain/model/repository/RepositoryResponse";
@@ -76,9 +76,7 @@ export class AuthRepositoryAdapter implements IAuhRepository {
     }
   }
 
-  async googleSignup(
-    request: GoogleSigninRequest
-  ): Promise<RepositoryResponse> {
+  async googleSignup(request: GoogleAuthRequest): Promise<RepositoryResponse> {
     const httpResponse = await this.axiosClient.post({
       url: "/auth/google/signup",
       body: request,
@@ -110,9 +108,7 @@ export class AuthRepositoryAdapter implements IAuhRepository {
     }
   }
 
-  async googleSignin(
-    request: GoogleSigninRequest
-  ): Promise<RepositoryResponse> {
+  async googleSignin(request: GoogleAuthRequest): Promise<RepositoryResponse> {
     const httpResponse = await this.axiosClient.post({
       url: "/auth/google/signin",
       body: request,
