@@ -8,20 +8,34 @@ vi.mock("@/application/store/useAuthStore", () => ({
   useAuthStore: vi.fn(),
 }));
 
-const mockLocalSignup = vi.fn();
 const mockPush = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: vi.fn(),
 }));
 
+vi.mock("@react-oauth/google", () => ({
+  GoogleLogin: ({ onSuccess, onError }: any) => (
+    <button
+      onClick={() => {
+        onSuccess({ credential: "fake-id-token" });
+      }}
+      data-testid="google-login-button"
+    >
+      Sigun with Google
+    </button>
+  ),
+}));
+
 describe("SignupPage", () => {
   const mockLocalSignup = vi.fn();
+  const mockGoogleSignup = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useAuthStore as unknown as vi.Mock).mockReturnValue({
       localSignup: mockLocalSignup,
+      googleSignup: mockGoogleSignup,
       error: "",
     });
 
@@ -38,6 +52,11 @@ describe("SignupPage", () => {
     expect(screen.getByTestId("password")).toBeInTheDocument();
     expect(screen.getByTestId("confirmPassword")).toBeInTheDocument();
     expect(screen.getByTestId("submit")).toBeInTheDocument();
+    expect(screen.getByTestId("submit")).toBeDisabled();
+    expect(screen.getByTestId("google-login-button")).toBeInTheDocument();
+    expect(screen.getByTestId("google-login-button")).not.toHaveClass(
+      "disabled"
+    );
   });
 
   it("shows validation errors when submitting invali form", async () => {
@@ -154,5 +173,20 @@ describe("SignupPage", () => {
       );
     });
     expect(mockPush).toHaveBeenCalledTimes(0);
+  });
+
+  it("calls googleSignup with google id token", async () => {
+    mockGoogleSignup.mockResolvedValue(true);
+
+    render(<SignupPage />);
+    expect(screen.getByTestId("submit")).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("google-login-button"));
+
+    await waitFor(() => {
+      expect(mockGoogleSignup).toHaveBeenCalledWith({
+        idToken: "fake-id-token",
+      });
+    });
   });
 });
