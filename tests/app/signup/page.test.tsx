@@ -187,6 +187,30 @@ describe("SignupPage", () => {
       expect(mockGoogleSignup).toHaveBeenCalledWith({
         idToken: "fake-id-token",
       });
+      expect(mockPush).toHaveBeenCalledWith("/signin");
+    });
+  });
+
+  it("shows backend error if google singup fails", async () => {
+    mockGoogleSignup.mockResolvedValue(false);
+
+    (useAuthStore as unknown as vi.Mock).mockReturnValue({
+      googleSignup: mockGoogleSignup,
+      error: "Email already in use",
+    });
+
+    render(<SignupPage />);
+    expect(screen.getByTestId("submit")).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("google-login-button"));
+
+    await waitFor(() => {
+      expect(mockGoogleSignup).toHaveBeenCalledWith({
+        idToken: "fake-id-token",
+      });
+      expect(screen.getByTestId("error-subimt")).toHaveTextContent(
+        "Email already in use"
+      );
     });
   });
 });
