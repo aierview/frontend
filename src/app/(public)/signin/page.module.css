@@ -60,12 +60,21 @@
   border: 1px solid #d1cfff;
 }
 
+.googleLogin {
+  display: flex;
+  justify-content: center;
+}
+
+.disbled {
+  visibility: hidden;
+}
+
 .errorMessage {
   width: 100%;
   height: 12px;
 
   color: red;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   padding-left: 1rem;
 }
@@ -103,8 +112,8 @@
   cursor: pointer;
 }
 
-.form button:hover,
-.form button:focus {
+.form button:not(:disabled):hover,
+.form button:not(:disabled):focus {
   filter: brightness(0.5);
 }
 
@@ -117,7 +126,7 @@
   text-align: center;
   height: 12px;
   color: red;
-  font-size: 0.625rem;
+  font-size: 9px;
   font-weight: 600;
 }
 

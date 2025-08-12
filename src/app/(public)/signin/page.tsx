@@ -8,13 +8,14 @@ import { useAuthStore } from "@/application/store/useAuthStore";
 import Spinner from "@/shared/components/Spinner/Spinner";
 import EyeIcon from "@/shared/icons/visibility.svg";
 import EyeOffIcon from "@/shared/icons/visibility_off.svg";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 
 export default function SigninPage() {
   const router = useRouter();
   const { register, handleSubmit, formState } = useSigninForm();
   const { isSubmitting, errors, isValid } = formState;
-  const { localSignin, error } = useAuthStore();
+  const { localSignin, googleSignin, error, setError } = useAuthStore();
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePassword = () => setShowPassword((prev) => !prev);
@@ -24,9 +25,18 @@ export default function SigninPage() {
       email: data.email,
       password: data.password,
     });
-
     if (success) router.push("/");
   });
+
+  const google = async (credentialResponse: CredentialResponse) => {
+    const idToken = credentialResponse.credential as string;
+    const success = await googleSignin({ idToken });
+    if (success) router.push("/");
+  };
+
+  const onError = () => {
+    setError("Houve um erro ao realizar o cadastro com o Google.");
+  };
 
   return (
     <div className={styles.container}>
@@ -76,6 +86,13 @@ export default function SigninPage() {
           >
             Sign in
           </button>
+          <div
+            className={`${styles.googleLogin} ${
+              isSubmitting && styles.disabled
+            } `}
+          >
+            <GoogleLogin onSuccess={google} onError={onError} />
+          </div>
           <div className={styles.errorSubmit}>
             {isSubmitting ? (
               <Spinner />

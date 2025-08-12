@@ -34,7 +34,7 @@ export class AuthRepositoryAdapter implements IAuhRepository {
       case HttpStatusCode.conflict:
         return {
           success: false,
-          data: new EmailAlreadyInUseError(request.email),
+          data: new EmailAlreadyInUseError(),
         };
       default:
       case HttpStatusCode.serverError:
@@ -97,7 +97,7 @@ export class AuthRepositoryAdapter implements IAuhRepository {
       case HttpStatusCode.conflict:
         return {
           success: false,
-          data: new EmailAlreadyInUseError("", httpResponse.body),
+          data: new EmailAlreadyInUseError(),
         };
       default:
       case HttpStatusCode.serverError:
