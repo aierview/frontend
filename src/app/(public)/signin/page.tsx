@@ -25,13 +25,13 @@ export default function SigninPage() {
       email: data.email,
       password: data.password,
     });
-    if (success) router.push("/");
+    if (success) router.push("/dashboard");
   });
 
   const google = async (credentialResponse: CredentialResponse) => {
     const idToken = credentialResponse.credential as string;
     const success = await googleSignin({ idToken });
-    if (success) router.push("/");
+    if (success) router.push("/dashboard");
   };
 
   const onError = () => {

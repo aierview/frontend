@@ -121,7 +121,7 @@ describe("SigninPage", () => {
         email: "john@example.com",
         password: "Password123!",
       });
-      expect(mockPush).toHaveBeenCalledWith("/");
+      expect(mockPush).toHaveBeenCalledWith("/dashboard");
     });
   });
 
@@ -165,7 +165,7 @@ describe("SigninPage", () => {
       expect(mockGoogleSignin).toHaveBeenCalledWith({
         idToken: "fake-id-token",
       });
-      expect(mockPush).toHaveBeenCalledWith("/");
+      expect(mockPush).toHaveBeenCalledWith("/dashboard");
     });
   });
 
