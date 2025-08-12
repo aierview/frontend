@@ -40,6 +40,15 @@ describe("AuthStore", () => {
     vi.clearAllMocks();
   });
 
+  describe("setError", () => {
+    it("should set error", () => {
+      store.getState().setError("some error");
+
+      expect(store.getState().error).not.toBe;
+      expect(store.getState().error).toBe("some error");
+    });
+  });
+
   describe("localSignup", () => {
     it("should return true and not set error when signup is successful", async () => {
       vi.mocked(mockRepo.localSignup).mockResolvedValueOnce({
