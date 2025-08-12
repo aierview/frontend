@@ -14,28 +14,40 @@ vi.mock("next/navigation", () => ({
   useRouter: vi.fn(),
 }));
 
+let shouldTriggerError = false;
+
 vi.mock("@react-oauth/google", () => ({
-  GoogleLogin: ({ onSuccess, onError }: any) => (
-    <button
-      onClick={() => {
-        onSuccess({ credential: "fake-id-token" });
-      }}
-      data-testid="google-login-button"
-    >
-      Sigun with Google
-    </button>
-  ),
+  GoogleLogin: ({ onSuccess, onError }: any) => {
+    React.useEffect(() => {
+      if (shouldTriggerError) {
+        onError();
+      }
+    }, []);
+
+    return (
+      <button
+        onClick={() => {
+          if (!shouldTriggerError) onSuccess({ credential: "fake-id-token" });
+        }}
+        data-testid="google-login-button"
+      >
+        Sign up with Google
+      </button>
+    );
+  },
 }));
 
 describe("SignupPage", () => {
   const mockLocalSignup = vi.fn();
   const mockGoogleSignup = vi.fn();
+  const mockSetError = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useAuthStore as unknown as vi.Mock).mockReturnValue({
       localSignup: mockLocalSignup,
       googleSignup: mockGoogleSignup,
+      setError: mockSetError,
       error: "",
     });
 
@@ -210,6 +222,22 @@ describe("SignupPage", () => {
       });
       expect(screen.getByTestId("error-subimt")).toHaveTextContent(
         "Email already in use"
+      );
+    });
+  });
+
+  it("shows google error if google singup fails", async () => {
+    shouldTriggerError = true;
+
+    mockGoogleSignup.mockResolvedValue(false);
+
+    render(<SignupPage />);
+    expect(screen.getByTestId("submit")).toBeDisabled();
+
+    await waitFor(() => {
+      expect(mockGoogleSignup).toHaveBeenCalledTimes(0);
+      expect(mockSetError).toHaveBeenCalledWith(
+        "Houve um erro ao realizar o cadastro com o Google."
       );
     });
   });

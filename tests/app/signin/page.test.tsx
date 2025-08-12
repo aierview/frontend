@@ -2,6 +2,7 @@ import SigninPage from "@/app/(public)/signin/page";
 import { useAuthStore } from "@/application/store/useAuthStore";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
+import React from "react";
 import { vi } from "vitest";
 
 vi.mock("@/application/store/useAuthStore", () => ({
@@ -15,13 +16,40 @@ vi.mock("next/navigation", () => ({
   useRouter: vi.fn(),
 }));
 
+let shouldTriggerError = false;
+
+vi.mock("@react-oauth/google", () => ({
+  GoogleLogin: ({ onSuccess, onError }: any) => {
+    React.useEffect(() => {
+      if (shouldTriggerError) {
+        onError();
+      }
+    }, []);
+
+    return (
+      <button
+        onClick={() => {
+          if (!shouldTriggerError) onSuccess({ credential: "fake-id-token" });
+        }}
+        data-testid="google-login-button"
+      >
+        Sign in with Google
+      </button>
+    );
+  },
+}));
+
 describe("SigninPage", () => {
   const mockLocalSignin = vi.fn();
+  const mockGoogleSignin = vi.fn();
+  const mockSetError = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useAuthStore as unknown as vi.Mock).mockReturnValue({
       localSignin: mockLocalSignin,
+      googleSignin: mockGoogleSignin,
+      setError: mockSetError,
       error: "",
     });
 
@@ -122,6 +150,61 @@ describe("SigninPage", () => {
         "Invalid credentials"
       );
       expect(mockPush).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  it("calls googleSignin with google id token", async () => {
+    mockGoogleSignin.mockResolvedValue(true);
+
+    render(<SigninPage />);
+    expect(screen.getByTestId("submit")).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("google-login-button"));
+
+    await waitFor(() => {
+      expect(mockGoogleSignin).toHaveBeenCalledWith({
+        idToken: "fake-id-token",
+      });
+      expect(mockPush).toHaveBeenCalledWith("/");
+    });
+  });
+
+  it("shows backend error if google singup fails", async () => {
+    mockGoogleSignin.mockResolvedValue(false);
+
+    (useAuthStore as unknown as vi.Mock).mockReturnValue({
+      googleSignin: mockGoogleSignin,
+      error: "Bad credentials",
+    });
+
+    render(<SigninPage />);
+    expect(screen.getByTestId("submit")).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("google-login-button"));
+
+    await waitFor(() => {
+      expect(mockGoogleSignin).toHaveBeenCalledWith({
+        idToken: "fake-id-token",
+      });
+      expect(screen.getByTestId("error-subimt")).toHaveTextContent(
+        "Bad credentials"
+      );
+    });
+  });
+
+  it("shows google error if google singin fails", async () => {
+    shouldTriggerError = true;
+
+    mockGoogleSignin.mockResolvedValue(false);
+
+    render(<SigninPage />);
+    expect(screen.getByTestId("submit")).toBeDisabled();
+
+    await waitFor(() => {
+      expect(mockGoogleSignin).toHaveBeenCalledTimes(0);
+      expect(mockSetError).toHaveBeenCalledWith(
+        "Houve um erro ao realizar o cadastro com o Google."
+      );
     });
   });
 });
